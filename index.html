@@ -1,0 +1,641 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Shotsmith — App Store Screenshot Studio</title>
+<style>
+  /* bundled CJK fonts (variable, SIL OFL) — see /fonts/OFL.txt */
+  @font-face{font-family:"Noto Sans JP";src:url("fonts/NotoSansJP.woff2") format("woff2");
+    font-weight:100 900;font-style:normal;font-display:swap}
+  @font-face{font-family:"Noto Sans KR";src:url("fonts/NotoSansKR.woff2") format("woff2");
+    font-weight:100 900;font-style:normal;font-display:swap}
+
+  :root{
+    --bg:#14161B; --panel:#1C1F26; --panel2:#23272F; --line:#2E343F;
+    --ink:#E7EAF0; --muted:#8A93A2; --faint:#5B6472;
+    --accent:#4DA3FF; --accent-soft:#1d3a5c; --ok:#43C59E; --ok-soft:#173c33;
+    --mono:"SF Mono",ui-monospace,Menlo,Consolas,monospace;
+    --ui:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;height:100%}
+  body{background:var(--bg);color:var(--ink);font-family:var(--ui);font-size:14px;
+    -webkit-font-smoothing:antialiased;display:flex;flex-direction:column;overflow:hidden}
+
+  header{display:flex;align-items:center;gap:18px;padding:12px 18px;border-bottom:1px solid var(--line);
+    background:var(--panel);flex:0 0 auto;flex-wrap:wrap}
+  .brand{display:flex;align-items:baseline;gap:9px}
+  .brand b{font-size:16px;letter-spacing:-.2px}
+  .brand span{font-family:var(--mono);font-size:11px;color:var(--faint)}
+  .spacer{flex:1}
+  .seg{display:inline-flex;border:1px solid var(--line);border-radius:9px;overflow:hidden;background:var(--bg)}
+  .seg button{appearance:none;border:0;background:transparent;color:var(--muted);
+    padding:7px 13px;font-family:var(--ui);font-size:13px;cursor:pointer;display:flex;gap:7px;align-items:center}
+  .seg button.on{background:var(--panel2);color:var(--ink)}
+  .seg button .d{font-family:var(--mono);font-size:10px;color:var(--faint)}
+  .seg button.on .d{color:var(--accent)}
+  .seg button .dot{width:6px;height:6px;border-radius:50%;background:transparent}
+  .seg button .dot.has{background:var(--ok)}
+  .btn{appearance:none;border:1px solid var(--line);background:var(--panel2);color:var(--ink);
+    padding:8px 14px;border-radius:9px;font-size:13px;cursor:pointer;font-family:var(--ui)}
+  .btn:hover{border-color:var(--faint)}
+  .btn.primary{background:var(--ok);border-color:var(--ok);color:#06241c;font-weight:600}
+  .btn.primary:hover{filter:brightness(1.06)}
+  .btn:disabled{opacity:.4;cursor:not-allowed}
+
+  main{flex:1;display:grid;grid-template-columns:340px 1fr;min-height:0}
+  .rail{border-right:1px solid var(--line);background:var(--panel);overflow-y:auto;padding:16px}
+  .stage{position:relative;display:flex;flex-direction:column;align-items:center;justify-content:center;
+    padding:24px;min-height:0;overflow:auto;background:radial-gradient(circle at 50% 0,#1a1d24 0,var(--bg) 60%)}
+
+  .sec{margin-bottom:22px}
+  .sec h3{margin:0 0 11px;font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--faint);font-weight:600}
+  .row{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:11px}
+  .row label{color:var(--muted);font-size:13px}
+  .val{font-family:var(--mono);font-size:11px;color:var(--accent);min-width:42px;text-align:right}
+  input[type=range]{-webkit-appearance:none;appearance:none;height:4px;background:var(--line);border-radius:3px;width:150px;outline:none}
+  input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:15px;height:15px;border-radius:50%;background:var(--accent);cursor:pointer;border:2px solid var(--panel)}
+  input[type=color]{-webkit-appearance:none;appearance:none;width:34px;height:26px;border:1px solid var(--line);border-radius:7px;background:none;cursor:pointer;padding:0}
+  input[type=color]::-webkit-color-swatch-wrapper{padding:2px}
+  input[type=color]::-webkit-color-swatch{border:none;border-radius:5px}
+  select,input[type=text]{background:var(--bg);border:1px solid var(--line);color:var(--ink);border-radius:8px;padding:8px 10px;font-family:var(--ui);font-size:13px;width:100%}
+  select:focus,input:focus,textarea:focus{outline:2px solid var(--accent-soft);outline-offset:0;border-color:var(--accent)}
+  textarea{background:var(--bg);border:1px solid var(--line);color:var(--ink);border-radius:8px;padding:9px 11px;font-family:var(--ui);font-size:14px;width:100%;resize:none;line-height:1.4}
+  .field{margin-bottom:13px}
+  .field .lab{display:flex;justify-content:space-between;align-items:center;margin-bottom:6px}
+  .field .lab span{font-size:12px;color:var(--muted)}
+  .field .lab .count{font-family:var(--mono);font-size:10px;color:var(--faint)}
+
+  .slides{display:flex;flex-direction:column;gap:7px}
+  .chip{display:flex;align-items:center;gap:10px;padding:9px 11px;border:1px solid var(--line);border-radius:9px;background:var(--bg);cursor:pointer}
+  .chip.on{border-color:var(--accent);background:var(--accent-soft)}
+  .chip .n{font-family:var(--mono);font-size:11px;color:var(--faint);width:18px}
+  .chip.on .n{color:var(--accent)}
+  .chip .t{flex:1;font-size:13px;color:var(--ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .chip .t.empty{color:var(--faint)}
+  .chip .st{display:flex;gap:3px}
+  .dot{width:7px;height:7px;border-radius:50%;background:var(--line)}
+  .dot.on{background:var(--ok)}
+  .chip .x{color:var(--faint);font-size:15px;line-height:1;padding:2px 4px;border-radius:5px}
+  .chip .x:hover{color:#ff7a7a;background:#2a1d1d}
+  .addslide{margin-top:9px;width:100%;justify-content:center;display:flex}
+
+  .drops{display:grid;grid-template-columns:1fr 1fr;gap:9px}
+  .drop{border:1.5px dashed var(--line);border-radius:10px;padding:12px 8px;text-align:center;cursor:pointer;background:var(--bg);transition:border-color .12s,background .12s}
+  .drop:hover,.drop.over{border-color:var(--accent);background:var(--accent-soft)}
+  .drop.set{border-style:solid;border-color:var(--ok-soft)}
+  .drop .dl{font-family:var(--mono);font-size:10px;color:var(--faint);letter-spacing:.05em}
+  .drop .ds{font-size:11px;color:var(--muted);margin-top:5px}
+  .drop.set .ds{color:var(--ok)}
+  .imgnote{font-size:11px;color:var(--faint);margin-top:7px;line-height:1.5}
+
+  .note{font-size:11.5px;color:var(--faint);line-height:1.5;border-left:2px solid var(--line);padding-left:10px}
+  .localeTabs{margin-bottom:11px;width:100%}
+  .localeTabs button{flex:1;justify-content:center}
+
+  .preview-wrap{display:flex;flex-direction:column;align-items:center;gap:14px;max-height:100%}
+  canvas#preview{max-height:calc(100vh - 230px);max-width:100%;height:auto;width:auto;border-radius:6px;box-shadow:0 18px 50px rgba(0,0,0,.5)}
+  .badge{font-family:var(--mono);font-size:11px;color:var(--muted);display:flex;gap:8px;align-items:center;flex-wrap:wrap;justify-content:center}
+  .badge b{color:var(--ink)}
+  .badge .pill{border:1px solid var(--line);border-radius:20px;padding:3px 9px}
+  .badge .pill.ok{color:var(--ok);border-color:var(--ok-soft)}
+  .nav{display:flex;gap:8px;align-items:center}
+  .ghost{background:transparent;border:1px solid var(--line);color:var(--muted);width:34px;height:34px;border-radius:8px;cursor:pointer;font-size:15px}
+  .ghost:hover{color:var(--ink);border-color:var(--faint)}
+
+  .toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:var(--panel2);border:1px solid var(--line);padding:10px 16px;border-radius:10px;font-size:13px;color:var(--ink);box-shadow:0 8px 30px rgba(0,0,0,.5);opacity:0;transition:opacity .2s,transform .2s;pointer-events:none}
+  .toast.show{opacity:1;transform:translateX(-50%) translateY(-4px)}
+
+  @media (max-width:820px){
+    main{grid-template-columns:1fr;grid-template-rows:auto 1fr}
+    .rail{border-right:0;border-bottom:1px solid var(--line);max-height:46vh}
+    canvas#preview{max-height:46vh}
+  }
+</style>
+</head>
+<body>
+<header>
+  <div class="brand"><b>Shotsmith</b><span>app store screenshots · EN/JA/KR</span></div>
+  <div class="spacer"></div>
+  <div class="seg" id="deviceSeg">
+    <button data-dev="iphone" class="on">iPhone <span class="d">1320×2868</span></button>
+    <button data-dev="ipad">iPad <span class="d">2064×2752</span></button>
+  </div>
+  <div class="seg" id="fmtSeg">
+    <button data-fmt="png" class="on">PNG</button>
+    <button data-fmt="jpeg">JPEG</button>
+  </div>
+  <button class="btn" id="exportOne" data-i18n="downloadCurrent">Download current</button>
+  <button class="btn primary" id="exportAll" data-i18n="exportAll">Export all</button>
+</header>
+
+<main>
+  <aside class="rail">
+    <div class="sec">
+      <h3 data-i18n="slideContent">Slide content</h3>
+      <div class="seg localeTabs" id="localeSeg">
+        <button data-loc="en" class="on">EN <span class="dot" id="locdot-en"></span></button>
+        <button data-loc="ja">日本語 <span class="dot" id="locdot-ja"></span></button>
+        <button data-loc="ko">한국어 <span class="dot" id="locdot-ko"></span></button>
+      </div>
+      <div class="field">
+        <div class="lab"><span data-i18n="title">Title</span><span class="count" id="titleCount">0</span></div>
+        <textarea id="title" rows="2" data-i18n-ph="titlePh" placeholder="One line describing a feature"></textarea>
+      </div>
+      <div class="field">
+        <div class="lab"><span data-i18n="subtitle">Subtitle</span><span class="count" id="subCount">0</span></div>
+        <textarea id="subtitle" rows="2" data-i18n-ph="subtitlePh" placeholder="A short supporting line"></textarea>
+      </div>
+      <div class="drops">
+        <div class="drop" id="dropIphone" data-dev="iphone">
+          <div class="dl">IPHONE SHOT</div><div class="ds" id="dsIphone">drop / click</div>
+          <input type="file" accept="image/*" hidden>
+        </div>
+        <div class="drop" id="dropIpad" data-dev="ipad">
+          <div class="dl">IPAD SHOT</div><div class="ds" id="dsIpad">drop / click</div>
+          <input type="file" accept="image/*" hidden>
+        </div>
+      </div>
+      <p class="imgnote" data-i18n="imgShared">The screenshot is shared across languages (text only is translated). Empty JA/KR fields fall back to EN.</p>
+      <p class="note" style="margin-top:9px" data-i18n="appleRule">Apple rule: keep overlay text descriptive and factual. Superlatives, rankings, awards, or competitor comparisons risk rejection.</p>
+    </div>
+
+    <div class="sec">
+      <h3 data-i18n="slides">Slides</h3>
+      <div class="slides" id="slideList"></div>
+      <button class="btn addslide" id="addSlide" data-i18n="addSlide">+ Add slide</button>
+    </div>
+
+    <div class="sec">
+      <h3 data-i18n="background">Background</h3>
+      <div class="seg" id="bgSeg" style="margin-bottom:11px">
+        <button data-bg="gradient" class="on" data-i18n="gradient">Gradient</button>
+        <button data-bg="solid" data-i18n="solid">Solid</button>
+      </div>
+      <div class="row" id="rowG1"><label data-i18n="topColor">Top color</label><input type="color" id="bg1" value="#0E2A47"></div>
+      <div class="row" id="rowG2"><label data-i18n="bottomColor">Bottom color</label><input type="color" id="bg2" value="#1C5C8C"></div>
+      <div class="row" id="rowSolid" style="display:none"><label data-i18n="color">Color</label><input type="color" id="bgSolid" value="#111827"></div>
+    </div>
+
+    <div class="sec">
+      <h3 data-i18n="text">Text</h3>
+      <div class="row"><label data-i18n="titleColor">Title color</label><input type="color" id="titleColor" value="#FFFFFF"></div>
+      <div class="row"><label data-i18n="subColor">Subtitle color</label><input type="color" id="subColor" value="#C9D8E8"></div>
+      <div class="field" style="margin-top:4px">
+        <div class="lab"><span data-i18n="latinFont">Latin font (EN)</span></div>
+        <select id="fontFamily">
+          <option value='-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif'>System (San Francisco)</option>
+          <option value='"Helvetica Neue",Helvetica,Arial,sans-serif'>Helvetica Neue</option>
+          <option value='"Avenir Next","Avenir",sans-serif'>Avenir Next</option>
+          <option value='"Futura","Trebuchet MS",sans-serif'>Futura</option>
+          <option value='Georgia,"Times New Roman",serif'>Georgia (serif)</option>
+        </select>
+        <p class="imgnote" data-i18n="fontNote">JA → Noto Sans JP, KR → Noto Sans KR (bundled).</p>
+      </div>
+      <div class="row"><label data-i18n="titleSize">Title size</label>
+        <input type="range" id="titleSize" min="38" max="78" value="58">
+        <span class="val" id="titleSizeV">5.8%</span></div>
+      <div class="row"><label data-i18n="subSize">Subtitle size</label>
+        <input type="range" id="subSize" min="22" max="52" value="34">
+        <span class="val" id="subSizeV">3.4%</span></div>
+    </div>
+
+    <div class="sec">
+      <h3 data-i18n="layout">Layout</h3>
+      <div class="row"><label data-i18n="textArea">Text area</label>
+        <input type="range" id="textZone" min="16" max="38" value="26">
+        <span class="val" id="textZoneV">26%</span></div>
+      <div class="row"><label data-i18n="cornerRadius">Corner radius</label>
+        <input type="range" id="corner" min="0" max="12" value="6">
+        <span class="val" id="cornerV">6%</span></div>
+      <div class="row"><label data-i18n="trimTop">Trim top</label>
+        <input type="range" id="trimTop" min="0" max="10" value="0">
+        <span class="val" id="trimTopV">0%</span></div>
+      <div class="row"><label data-i18n="screenshot">Screenshot</label>
+        <div class="seg" id="fillSeg"><button data-fill="0" class="on">Fit</button><button data-fill="1">Fill</button></div></div>
+      <div class="row"><label data-i18n="shadow">Shadow</label>
+        <div class="seg" id="shadowSeg"><button data-sh="1" class="on">On</button><button data-sh="0">Off</button></div></div>
+    </div>
+  </aside>
+
+  <section class="stage">
+    <div class="preview-wrap">
+      <canvas id="preview" width="1320" height="2868"></canvas>
+      <div class="badge" id="badge"></div>
+      <div class="nav">
+        <button class="ghost" id="prev">‹</button>
+        <span class="badge" id="navlabel"></span>
+        <button class="ghost" id="next">›</button>
+      </div>
+    </div>
+  </section>
+</main>
+
+<div class="toast" id="toast"></div>
+
+<script>
+"use strict";
+const DEVICES = {
+  iphone:{w:1320,h:2868,label:"iPhone 6.9\u2033"},
+  ipad:{w:2064,h:2752,label:"iPad 13\u2033"}
+};
+const LOCALES = ["en","ja","ko"];
+const LOC_LABEL = {en:"EN", ja:"\u65e5\u672c\u8a9e", ko:"\ud55c\uad6d\uc5b4"};
+const SYS_CJK = ', "Apple SD Gothic Neo","Hiragino Sans","Yu Gothic","Malgun Gothic",sans-serif';
+
+/* ---------- i18n ---------- */
+const STRINGS = {
+  en:{
+    slideContent:"Slide content", title:"Title", subtitle:"Subtitle",
+    titlePh:"One line describing a feature", subtitlePh:"A short supporting line",
+    dropClick:"drop / click",
+    imgShared:"The screenshot is shared across languages (text only is translated). Empty JA/KR fields fall back to EN.",
+    appleRule:"Apple rule: keep overlay text descriptive and factual. Superlatives, rankings, awards, or competitor comparisons risk rejection.",
+    slides:"Slides", untitled:"Untitled", addSlide:"+ Add slide",
+    background:"Background", gradient:"Gradient", solid:"Solid",
+    topColor:"Top color", bottomColor:"Bottom color", color:"Color",
+    text:"Text", titleColor:"Title color", subColor:"Subtitle color",
+    latinFont:"Latin font (EN)", fontNote:"JA \u2192 Noto Sans JP, KR \u2192 Noto Sans KR (bundled).",
+    titleSize:"Title size", subSize:"Subtitle size",
+    layout:"Layout", textArea:"Text area", cornerRadius:"Corner radius", trimTop:"Trim top",
+    screenshot:"Screenshot", shadow:"Shadow",
+    downloadCurrent:"Download current", exportAll:"Export all", screenshotNeeded:"screenshot needed",
+    noShot:(d)=>`No ${d} screenshot on this slide`, exporting:"Exporting\u2026", saved:"Saved \u2713",
+    addShotFirst:"Add a screenshot first",
+    exportingN:(n,l)=>`Exporting\u2026 ${n} files (${l})`, doneN:(n)=>`Done \u2014 ${n} files saved \u2713`
+  },
+  ja:{
+    slideContent:"\u30b9\u30e9\u30a4\u30c9\u5185\u5bb9", title:"\u30bf\u30a4\u30c8\u30eb", subtitle:"\u30b5\u30d6\u30bf\u30a4\u30c8\u30eb",
+    titlePh:"\u6a5f\u80fd\u3092\u4e00\u884c\u3067\u8aac\u660e", subtitlePh:"\u88dc\u8db3\u306e\u4e00\u884c",
+    dropClick:"\u30c9\u30ed\u30c3\u30d7 / \u30af\u30ea\u30c3\u30af",
+    imgShared:"\u30b9\u30af\u30ea\u30fc\u30f3\u30b7\u30e7\u30c3\u30c8\u306f\u8a00\u8a9e\u5171\u901a\uff08\u30c6\u30ad\u30b9\u30c8\u306e\u307f\u7ffb\u8a33\uff09\u3002JA/KR\u304c\u7a7a\u306a\u3089EN\u3067\u81ea\u52d5\u88dc\u5b8c\u3002",
+    appleRule:"Apple\u306e\u898f\u5247\uff1a\u30aa\u30fc\u30d0\u30fc\u30ec\u30a4\u6587\u306f\u6a5f\u80fd\u3092\u8aac\u660e\u3059\u308b\u4e8b\u5b9f\u7684\u306a\u8868\u73fe\u3067\u3002\u300c\u6700\u9ad8\u30fb1\u4f4d\u30fb\u53d7\u8cde\u30fb\u7af6\u5408\u6bd4\u8f03\u300d\u306f\u5374\u4e0b\u30ea\u30b9\u30af\u3002",
+    slides:"\u30b9\u30e9\u30a4\u30c9", untitled:"\u7121\u984c", addSlide:"+ \u30b9\u30e9\u30a4\u30c9\u3092\u8ffd\u52a0",
+    background:"\u80cc\u666f", gradient:"\u30b0\u30e9\u30c7\u30fc\u30b7\u30e7\u30f3", solid:"\u5358\u8272",
+    topColor:"\u4e0a\u306e\u8272", bottomColor:"\u4e0b\u306e\u8272", color:"\u8272",
+    text:"\u30c6\u30ad\u30b9\u30c8", titleColor:"\u30bf\u30a4\u30c8\u30eb\u8272", subColor:"\u30b5\u30d6\u30bf\u30a4\u30c8\u30eb\u8272",
+    latinFont:"\u30e9\u30c6\u30f3\u6587\u5b57\u30d5\u30a9\u30f3\u30c8 (EN)", fontNote:"JA \u2192 Noto Sans JP\u3001KR \u2192 Noto Sans KR\uff08\u540c\u68b1\uff09\u3002",
+    titleSize:"\u30bf\u30a4\u30c8\u30eb\u30b5\u30a4\u30ba", subSize:"\u30b5\u30d6\u30bf\u30a4\u30c8\u30eb\u30b5\u30a4\u30ba",
+    layout:"\u30ec\u30a4\u30a2\u30a6\u30c8", textArea:"\u30c6\u30ad\u30b9\u30c8\u9818\u57df", cornerRadius:"\u89d2\u4e38", trimTop:"\u4e0a\u90e8\u30c8\u30ea\u30df\u30f3\u30b0",
+    screenshot:"\u30b9\u30af\u30ea\u30fc\u30f3\u30b7\u30e7\u30c3\u30c8", shadow:"\u5f71",
+    downloadCurrent:"\u73fe\u5728\u306e\u3082\u306e\u3092\u4fdd\u5b58", exportAll:"\u3059\u3079\u3066\u66f8\u304d\u51fa\u3057", screenshotNeeded:"\u8981\u30b9\u30af\u30ea\u30fc\u30f3\u30b7\u30e7\u30c3\u30c8",
+    noShot:(d)=>`\u3053\u306e\u30b9\u30e9\u30a4\u30c9\u306b${d}\u30b9\u30af\u30ea\u30fc\u30f3\u30b7\u30e7\u30c3\u30c8\u304c\u3042\u308a\u307e\u305b\u3093`, exporting:"\u66f8\u304d\u51fa\u3057\u4e2d\u2026", saved:"\u4fdd\u5b58\u3057\u307e\u3057\u305f \u2713",
+    addShotFirst:"\u5148\u306b\u30b9\u30af\u30ea\u30fc\u30f3\u30b7\u30e7\u30c3\u30c8\u3092\u8ffd\u52a0\u3057\u3066\u304f\u3060\u3055\u3044",
+    exportingN:(n,l)=>`\u66f8\u304d\u51fa\u3057\u4e2d\u2026 ${n}\u679a (${l})`, doneN:(n)=>`\u5b8c\u4e86 \u2014 ${n}\u679a\u3092\u4fdd\u5b58 \u2713`
+  },
+  ko:{
+    slideContent:"\uc2ac\ub77c\uc774\ub4dc \ub0b4\uc6a9", title:"\ud0c0\uc774\ud2c0", subtitle:"\uc11c\ube0c\ud0c0\uc774\ud2c0",
+    titlePh:"\uae30\ub2a5\uc744 \ud55c \uc904\ub85c \uc124\uba85", subtitlePh:"\ubcf4\uc870 \uc124\uba85 \ud55c \uc904",
+    dropClick:"\ub04c\uae30 / \ud074\ub9ad",
+    imgShared:"\uc2a4\ud06c\ub9b0\uc0f7\uc740 \uc5b8\uc5b4 \uacf5\ud1b5\uc73c\ub85c \uc4f0\uc785\ub2c8\ub2e4(\ud14d\uc2a4\ud2b8\ub9cc \ubc88\uc5ed). JA/KR \ubb38\uad6c\uac00 \ube44\uba74 EN\uc73c\ub85c \uc790\ub3d9 \ub300\uccb4\ub429\ub2c8\ub2e4.",
+    appleRule:"Apple \uaddc\uce59: \uc624\ubc84\ub808\uc774 \ubb38\uad6c\ub294 \uae30\ub2a5\uc744 \uc124\uba85\ud558\ub294 \uc0ac\uc2e4\uc801 \ud1a4\uc73c\ub85c. \"\ucd5c\uace0\u00b71\uc704\u00b7\uc218\uc0c1\u00b7\uacbd\uc7c1\uc0ac \ube44\uad50\"\ub294 \ub9ac\uc81d \uc704\ud5d8\uc774 \uc788\uc5b4\uc694.",
+    slides:"\uc2ac\ub77c\uc774\ub4dc", untitled:"\uc81c\ubaa9 \uc5c6\uc74c", addSlide:"+ \uc2ac\ub77c\uc774\ub4dc \ucd94\uac00",
+    background:"\ubc30\uacbd", gradient:"\uadf8\ub77c\ub370\uc774\uc158", solid:"\ub2e8\uc0c9",
+    topColor:"\uc704\ucabd \uc0c9", bottomColor:"\uc544\ub798\ucabd \uc0c9", color:"\uc0c9",
+    text:"\ud14d\uc2a4\ud2b8", titleColor:"\ud0c0\uc774\ud2c0 \uc0c9", subColor:"\uc11c\ube0c\ud0c0\uc774\ud2c0 \uc0c9",
+    latinFont:"\ub77c\ud2f4 \ud3f0\ud2b8 (EN)", fontNote:"JA \u2192 Noto Sans JP, KR \u2192 Noto Sans KR \uc790\ub3d9 \uc801\uc6a9(\ubc88\ub4e4 \ud3f0\ud2b8).",
+    titleSize:"\ud0c0\uc774\ud2c0 \ud06c\uae30", subSize:"\uc11c\ube0c\ud0c0\uc774\ud2c0 \ud06c\uae30",
+    layout:"\ub808\uc774\uc544\uc6c3", textArea:"\ud14d\uc2a4\ud2b8 \uc601\uc5ed", cornerRadius:"\ubaa8\uc11c\ub9ac \ub465\uae00\uae30", trimTop:"\uc0c1\ub2e8 \uc790\ub974\uae30",
+    screenshot:"\uc2a4\ud06c\ub9b0\uc0f7", shadow:"\uadf8\ub9bc\uc790",
+    downloadCurrent:"\ud604\uc7ac \ud56d\ubaa9 \uc800\uc7a5", exportAll:"\uc804\uccb4 \ub0b4\ubcf4\ub0b4\uae30", screenshotNeeded:"\uc2a4\ud06c\ub9b0\uc0f7 \ud544\uc694",
+    noShot:(d)=>`\uc774 \uc2ac\ub77c\uc774\ub4dc\uc5d0 ${d} \uc2a4\ud06c\ub9b0\uc0f7\uc774 \uc5c6\uc2b5\ub2c8\ub2e4`, exporting:"\ub0b4\ubcf4\ub0b4\ub294 \uc911\u2026", saved:"\uc800\uc7a5\ub428 \u2713",
+    addShotFirst:"\uba3c\uc800 \uc2a4\ud06c\ub9b0\uc0f7\uc744 \ucd94\uac00\ud558\uc138\uc694",
+    exportingN:(n,l)=>`\ub0b4\ubcf4\ub0b4\ub294 \uc911\u2026 ${n}\uc7a5 (${l})`, doneN:(n)=>`\uc644\ub8cc \u2014 ${n}\uc7a5 \uc800\uc7a5 \u2713`
+  }
+};
+function t(key, ...args){
+  const dict = STRINGS[state.locale] || STRINGS.en;
+  let v = dict[key]; if(v===undefined) v = STRINGS.en[key];
+  return typeof v==="function" ? v(...args) : v;
+}
+function applyI18n(){
+  document.querySelectorAll("[data-i18n]").forEach(el=>{ el.textContent = t(el.dataset.i18n); });
+  document.querySelectorAll("[data-i18n-ph]").forEach(el=>{ el.placeholder = t(el.dataset.i18nPh); });
+  document.documentElement.lang = state.locale;
+}
+
+const state = {
+  device:"iphone", format:"png", current:0, locale:"en",
+  slides:[ newSlide() ],
+  style:{
+    bgType:"gradient", bg1:"#0E2A47", bg2:"#1C5C8C", bgSolid:"#111827",
+    titleColor:"#FFFFFF", subColor:"#C9D8E8",
+    fontFamily:'-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif',
+    titleSize:0.058, subSize:0.034,
+    textZone:0.26, corner:0.06, shadow:true, fill:false, trimTop:0
+  }
+};
+function newSlide(){
+  return {loc:{en:{title:"",subtitle:""}, ja:{title:"",subtitle:""}, ko:{title:"",subtitle:""}},
+          img:{iphone:null, ipad:null}};
+}
+
+/* ---- font loading gate (prevents fallback glyphs baked into export) ---- */
+const fontsReady = (async()=>{
+  if(!document.fonts) return;
+  const fams=['"Noto Sans JP"','"Noto Sans KR"'], wts=["400","500","700"], sample="\u3042\u6f22\ud55cAB";
+  try{ await Promise.all(fams.flatMap(f=>wts.map(w=>document.fonts.load(`${w} 40px ${f}`, sample)))); }catch(e){}
+  try{ await document.fonts.ready; }catch(e){}
+})();
+
+const $ = s=>document.querySelector(s);
+const preview = $("#preview"), pctx = preview.getContext("2d");
+
+/* ---------- helpers ---------- */
+function familyFor(locale){
+  const latin=state.style.fontFamily;
+  if(locale==="ja") return '"Noto Sans JP",'+latin+SYS_CJK;
+  if(locale==="ko") return '"Noto Sans KR",'+latin+SYS_CJK;
+  return latin+SYS_CJK;
+}
+function textFor(slide, locale){
+  const tt=slide.loc[locale], en=slide.loc.en;
+  return { title:(tt.title.trim()||en.title), subtitle:(tt.subtitle.trim()||en.subtitle) };
+}
+function localesToExport(){
+  const set=new Set(["en"]);
+  state.slides.forEach(s=>LOCALES.forEach(L=>{
+    if((s.loc[L].title+s.loc[L].subtitle).trim()) set.add(L);
+  }));
+  return LOCALES.filter(L=>set.has(L));
+}
+
+function wrapLines(ctx, text, maxW){
+  const out=[];
+  text.split(/\n/).forEach(para=>{
+    const words=para.split(/\s+/).filter(Boolean);
+    if(!words.length) return;
+    let cur=words[0];
+    for(let i=1;i<words.length;i++){
+      const tt=cur+" "+words[i];
+      if(ctx.measureText(tt).width<=maxW) cur=tt; else { out.push(cur); cur=words[i]; }
+    }
+    out.push(cur);
+  });
+  const fixed=[];
+  out.forEach(line=>{
+    if(ctx.measureText(line).width<=maxW){fixed.push(line);return;}
+    let buf="";
+    for(const ch of line){
+      if(ctx.measureText(buf+ch).width<=maxW) buf+=ch;
+      else { if(buf)fixed.push(buf); buf=ch; }
+    }
+    if(buf)fixed.push(buf);
+  });
+  return fixed.length?fixed:[""];
+}
+function roundRectPath(ctx,x,y,w,h,r){
+  if(ctx.roundRect){ctx.beginPath();ctx.roundRect(x,y,w,h,r);return;}
+  r=Math.min(r,w/2,h/2);ctx.beginPath();
+  ctx.moveTo(x+r,y);ctx.arcTo(x+w,y,x+w,y+h,r);ctx.arcTo(x+w,y+h,x,y+h,r);
+  ctx.arcTo(x,y+h,x,y,r);ctx.arcTo(x,y,x+w,y,r);ctx.closePath();
+}
+
+function renderTo(ctx, dev, slide, locale, forExport){
+  const {w,h}=DEVICES[dev], s=state.style;
+  if(s.bgType==="solid"){ ctx.fillStyle=s.bgSolid; ctx.fillRect(0,0,w,h); }
+  else{ const g=ctx.createLinearGradient(0,0,0,h); g.addColorStop(0,s.bg1); g.addColorStop(1,s.bg2);
+        ctx.fillStyle=g; ctx.fillRect(0,0,w,h); }
+
+  const fam=familyFor(locale);
+  const side=w*0.085, maxW=w-2*side;
+  const titlePx=Math.round(w*s.titleSize), subPx=Math.round(w*s.subSize);
+  const {title,subtitle}=textFor(slide, locale);
+
+  ctx.textBaseline="top"; ctx.textAlign="left";
+  let y=Math.round(h*0.055);
+  if(title.trim()){
+    ctx.font=`700 ${titlePx}px ${fam}`; ctx.fillStyle=s.titleColor;
+    wrapLines(ctx,title.trim(),maxW).forEach(line=>{
+      ctx.fillText(line,(w-ctx.measureText(line).width)/2,y); y+=Math.round(titlePx*1.16); });
+  }
+  if(subtitle.trim()){
+    y+=Math.round(h*0.014);
+    ctx.font=`500 ${subPx}px ${fam}`; ctx.fillStyle=s.subColor;
+    wrapLines(ctx,subtitle.trim(),maxW).forEach(line=>{
+      ctx.fillText(line,(w-ctx.measureText(line).width)/2,y); y+=Math.round(subPx*1.24); });
+  }
+
+  const fill=s.fill;
+  const shotSide=Math.round(w*(fill?0.03:0.085));
+  const regTop=fill ? Math.round(y+h*0.02) : Math.max(y+Math.round(h*0.03), Math.round(h*s.textZone));
+  const regBot=h-Math.round(h*(fill?0.02:0.045)), regH=regBot-regTop, regW=w-2*shotSide;
+  const img=slide.img[dev];
+
+  if(img){
+    const sy=Math.round(img.naturalHeight*s.trimTop);
+    const sw=img.naturalWidth, sh=img.naturalHeight-sy;
+    const scale=Math.min(regW/sw, regH/sh);
+    const nw=Math.round(sw*scale), nh=Math.round(sh*scale);
+    const px=Math.round((w-nw)/2), py=Math.round(regTop+(regH-nh)/2), rad=Math.round(nw*s.corner);
+    if(s.shadow){
+      ctx.save(); ctx.shadowColor="rgba(0,0,0,0.45)"; ctx.shadowBlur=Math.round(nw*0.06);
+      ctx.shadowOffsetY=Math.round(nh*0.014);
+      roundRectPath(ctx,px,py,nw,nh,rad); ctx.fillStyle="#000"; ctx.fill(); ctx.restore();
+    }
+    ctx.save(); roundRectPath(ctx,px,py,nw,nh,rad); ctx.clip();
+    ctx.drawImage(img, 0, sy, sw, sh, px, py, nw, nh); ctx.restore();
+  } else if(!forExport){
+    ctx.save(); ctx.setLineDash([14,12]); ctx.lineWidth=3; ctx.strokeStyle="rgba(255,255,255,0.28)";
+    roundRectPath(ctx,shotSide,regTop,regW,regH,40); ctx.stroke(); ctx.setLineDash([]);
+    ctx.fillStyle="rgba(255,255,255,0.5)"; ctx.textAlign="center"; ctx.textBaseline="middle";
+    ctx.font=`500 ${Math.round(w*0.034)}px ${fam}`;
+    ctx.fillText(`Drop your ${dev==="iphone"?"iPhone":"iPad"} screenshot`, w/2, regTop+regH/2);
+    ctx.restore();
+  }
+}
+
+async function renderPreview(){
+  await fontsReady;
+  const {w,h}=DEVICES[state.device];
+  preview.width=w; preview.height=h;
+  renderTo(pctx, state.device, state.slides[state.current], state.locale, false);
+  const ok=!!state.slides[state.current].img[state.device];
+  $("#badge").innerHTML =
+    `<span class="pill"><b>${w} \u00d7 ${h}</b> px</span>`+
+    `<span class="pill ${state.format==='jpeg'?'':'ok'}">${state.format.toUpperCase()}</span>`+
+    `<span class="pill ok">RGB \u00b7 no alpha</span>`+
+    `<span class="pill">${LOC_LABEL[state.locale]}</span>`+
+    (ok?'':`<span class="pill">${t("screenshotNeeded")}</span>`);
+  $("#navlabel").innerHTML = `<b>${state.current+1}</b> / ${state.slides.length} \u00b7 ${DEVICES[state.device].label}`;
+}
+
+/* ---------- no-alpha PNG encoder ---------- */
+const crcTab=(()=>{const tb=new Uint32Array(256);for(let n=0;n<256;n++){let c=n;
+  for(let k=0;k<8;k++)c=(c&1)?(0xEDB88320^(c>>>1)):(c>>>1);tb[n]=c>>>0;}return tb;})();
+function crc32(b){let c=0xFFFFFFFF;for(let i=0;i<b.length;i++)c=crcTab[(c^b[i])&0xFF]^(c>>>8);return (c^0xFFFFFFFF)>>>0;}
+function chunk(type,data){
+  const len=data.length,out=new Uint8Array(12+len),dv=new DataView(out.buffer);
+  dv.setUint32(0,len);for(let i=0;i<4;i++)out[4+i]=type.charCodeAt(i);out.set(data,8);
+  const crcIn=new Uint8Array(4+len);for(let i=0;i<4;i++)crcIn[i]=type.charCodeAt(i);crcIn.set(data,4);
+  dv.setUint32(8+len,crc32(crcIn));return out;
+}
+async function deflate(bytes){
+  const cs=new CompressionStream("deflate"); const w=cs.writable.getWriter(); w.write(bytes); w.close();
+  return new Uint8Array(await new Response(cs.readable).arrayBuffer());
+}
+async function encodeRgbPng(rgba,w,h){
+  const raw=new Uint8Array(h*(1+w*3));let p=0;
+  for(let y=0;y<h;y++){raw[p++]=0;for(let x=0;x<w;x++){const i=(y*w+x)*4;raw[p++]=rgba[i];raw[p++]=rgba[i+1];raw[p++]=rgba[i+2];}}
+  const idat=await deflate(raw);
+  const sig=new Uint8Array([137,80,78,71,13,10,26,10]);
+  const ihdr=new Uint8Array(13),dv=new DataView(ihdr.buffer);
+  dv.setUint32(0,w);dv.setUint32(4,h);ihdr[8]=8;ihdr[9]=2;
+  return new Blob([sig,chunk("IHDR",ihdr),chunk("IDAT",idat),chunk("IEND",new Uint8Array(0))],{type:"image/png"});
+}
+async function exportBlob(dev, slide, locale){
+  await fontsReady;
+  const {w,h}=DEVICES[dev]; const c=document.createElement("canvas"); c.width=w; c.height=h;
+  renderTo(c.getContext("2d"), dev, slide, locale, true);
+  if(state.format==="jpeg" || !("CompressionStream" in window))
+    return await new Promise(r=>c.toBlob(r,"image/jpeg",0.95));
+  return await encodeRgbPng(c.getContext("2d").getImageData(0,0,w,h).data, w, h);
+}
+function download(blob,name){
+  const a=document.createElement("a"); a.href=URL.createObjectURL(blob); a.download=name;
+  document.body.appendChild(a); a.click(); a.remove(); setTimeout(()=>URL.revokeObjectURL(a.href),2000);
+}
+const ext=()=>state.format==="jpeg"?"jpg":"png";
+
+async function exportCurrent(){
+  const slide=state.slides[state.current];
+  if(!slide.img[state.device]) return toast(t("noShot", state.device));
+  toast(t("exporting"));
+  const b=await exportBlob(state.device, slide, state.locale);
+  download(b, `${state.locale}_${state.device}_${String(state.current+1).padStart(2,"0")}.${ext()}`);
+  toast(t("saved"));
+}
+async function exportAll(){
+  const locs=localesToExport(), jobs=[];
+  locs.forEach(L=>["iphone","ipad"].forEach(dev=>state.slides.forEach((s,i)=>{
+    if(s.img[dev]) jobs.push({L,dev,s,i}); })));
+  if(!jobs.length) return toast(t("addShotFirst"));
+  toast(t("exportingN", jobs.length, locs.map(l=>LOC_LABEL[l]).join("/")));
+  for(const j of jobs){
+    const b=await exportBlob(j.dev, j.s, j.L);
+    download(b, `${j.L}_${j.dev}_${String(j.i+1).padStart(2,"0")}.${ext()}`);
+    await new Promise(r=>setTimeout(r,350));
+  }
+  toast(t("doneN", jobs.length));
+}
+
+/* ---------- slide list ---------- */
+function renderSlides(){
+  const list=$("#slideList"); list.innerHTML="";
+  state.slides.forEach((s,i)=>{
+    const chip=document.createElement("div");
+    chip.className="chip"+(i===state.current?" on":"");
+    const raw=(s.loc[state.locale].title.trim()||s.loc.en.title.trim());
+    const title=raw||t("untitled");
+    chip.innerHTML=
+      `<span class="n">${String(i+1).padStart(2,"0")}</span>`+
+      `<span class="t ${raw?'':'empty'}">${escapeHtml(title)}</span>`+
+      `<span class="st"><span class="dot ${s.img.iphone?'on':''}"></span>`+
+      `<span class="dot ${s.img.ipad?'on':''}"></span></span>`+
+      (state.slides.length>1?`<span class="x" data-x="${i}">\u00d7</span>`:"");
+    chip.addEventListener("click",e=>{
+      if(e.target.dataset.x!==undefined){
+        e.stopPropagation(); state.slides.splice(i,1);
+        if(state.current>=state.slides.length)state.current=state.slides.length-1;
+        syncEditor(); renderSlides(); renderPreview(); return;
+      }
+      state.current=i; syncEditor(); renderSlides(); renderPreview();
+    });
+    list.appendChild(chip);
+  });
+  $("#addSlide").disabled = state.slides.length>=10;
+}
+function escapeHtml(s){return s.replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));}
+
+/* ---------- editor sync ---------- */
+function syncEditor(){
+  const s=state.slides[state.current], tt=s.loc[state.locale];
+  $("#title").value=tt.title; $("#subtitle").value=tt.subtitle;
+  $("#titleCount").textContent=tt.title.length; $("#subCount").textContent=tt.subtitle.length;
+  setDrop("dropIphone","dsIphone", s.img.iphone);
+  setDrop("dropIpad","dsIpad", s.img.ipad);
+  LOCALES.forEach(L=>{
+    const has=(s.loc[L].title+s.loc[L].subtitle).trim().length>0;
+    $("#locdot-"+L).classList.toggle("has",has);
+  });
+}
+function setDrop(id,dsId,img){
+  const el=$("#"+id), ds=$("#"+dsId);
+  if(img){ el.classList.add("set"); ds.textContent=`${img.naturalWidth}\u00d7${img.naturalHeight}`; }
+  else { el.classList.remove("set"); ds.textContent=t("dropClick"); }
+}
+
+/* ---------- image loading ---------- */
+function loadImageFile(file, dev){
+  if(!file || !file.type.startsWith("image/")) return;
+  const img=new Image();
+  img.onload=()=>{ state.slides[state.current].img[dev]=img; syncEditor(); renderSlides(); renderPreview(); };
+  img.src=URL.createObjectURL(file);
+}
+function wireDrop(id, dev){
+  const el=$("#"+id), input=el.querySelector("input");
+  el.addEventListener("click",()=>input.click());
+  input.addEventListener("change",e=>loadImageFile(e.target.files[0],dev));
+  ["dragenter","dragover"].forEach(ev=>el.addEventListener(ev,e=>{e.preventDefault();el.classList.add("over");}));
+  ["dragleave","drop"].forEach(ev=>el.addEventListener(ev,e=>{e.preventDefault();el.classList.remove("over");}));
+  el.addEventListener("drop",e=>loadImageFile(e.dataTransfer.files[0],dev));
+}
+
+/* ---------- toast ---------- */
+let toastT; function toast(msg){const el=$("#toast");el.textContent=msg;el.classList.add("show");
+  clearTimeout(toastT);toastT=setTimeout(()=>el.classList.remove("show"),2000);}
+
+/* ---------- wire controls ---------- */
+function seg(id, attr, fn){
+  $("#"+id).querySelectorAll("button").forEach(b=>b.addEventListener("click",()=>{
+    $("#"+id).querySelectorAll("button").forEach(x=>x.classList.remove("on"));
+    b.classList.add("on"); fn(b.dataset[attr]); }));
+}
+seg("deviceSeg","dev",v=>{state.device=v;renderPreview();});
+seg("fmtSeg","fmt",v=>{state.format=v;renderPreview();});
+seg("localeSeg","loc",v=>{state.locale=v;applyI18n();syncEditor();renderSlides();renderPreview();});
+seg("bgSeg","bg",v=>{state.style.bgType=v;
+  $("#rowG1").style.display=v==="gradient"?"":"none";
+  $("#rowG2").style.display=v==="gradient"?"":"none";
+  $("#rowSolid").style.display=v==="solid"?"flex":"none"; renderPreview();});
+seg("shadowSeg","sh",v=>{state.style.shadow=v==="1";renderPreview();});
+seg("fillSeg","fill",v=>{state.style.fill=v==="1";renderPreview();});
+
+$("#title").addEventListener("input",e=>{state.slides[state.current].loc[state.locale].title=e.target.value;
+  $("#titleCount").textContent=e.target.value.length; renderSlides(); renderPreview();});
+$("#subtitle").addEventListener("input",e=>{state.slides[state.current].loc[state.locale].subtitle=e.target.value;
+  $("#subCount").textContent=e.target.value.length; syncEditor(); renderPreview();});
+
+$("#bg1").addEventListener("input",e=>{state.style.bg1=e.target.value;renderPreview();});
+$("#bg2").addEventListener("input",e=>{state.style.bg2=e.target.value;renderPreview();});
+$("#bgSolid").addEventListener("input",e=>{state.style.bgSolid=e.target.value;renderPreview();});
+$("#titleColor").addEventListener("input",e=>{state.style.titleColor=e.target.value;renderPreview();});
+$("#subColor").addEventListener("input",e=>{state.style.subColor=e.target.value;renderPreview();});
+$("#fontFamily").addEventListener("change",e=>{state.style.fontFamily=e.target.value;renderPreview();});
+
+function slider(id,vId,fmt,fn){const el=$("#"+id);el.addEventListener("input",()=>{
+  const v=parseFloat(el.value);$("#"+vId).textContent=fmt(v);fn(v);renderPreview();});}
+slider("titleSize","titleSizeV",v=>(v/10).toFixed(1)+"%",v=>state.style.titleSize=v/1000);
+slider("subSize","subSizeV",v=>(v/10).toFixed(1)+"%",v=>state.style.subSize=v/1000);
+slider("textZone","textZoneV",v=>v+"%",v=>state.style.textZone=v/100);
+slider("corner","cornerV",v=>v+"%",v=>state.style.corner=v/100);
+slider("trimTop","trimTopV",v=>v+"%",v=>state.style.trimTop=v/100);
+
+$("#addSlide").addEventListener("click",()=>{
+  if(state.slides.length>=10)return; state.slides.push(newSlide());
+  state.current=state.slides.length-1; syncEditor(); renderSlides(); renderPreview();});
+$("#prev").addEventListener("click",()=>{state.current=(state.current-1+state.slides.length)%state.slides.length;
+  syncEditor();renderSlides();renderPreview();});
+$("#next").addEventListener("click",()=>{state.current=(state.current+1)%state.slides.length;
+  syncEditor();renderSlides();renderPreview();});
+$("#exportOne").addEventListener("click",exportCurrent);
+$("#exportAll").addEventListener("click",exportAll);
+wireDrop("dropIphone","iphone"); wireDrop("dropIpad","ipad");
+
+/* ---------- boot ---------- */
+applyI18n(); syncEditor(); renderSlides(); renderPreview();
+fontsReady.then(renderPreview);
+</script>
+</body>
+</html>
