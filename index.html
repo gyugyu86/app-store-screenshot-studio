@@ -263,7 +263,8 @@ const STRINGS = {
     downloadCurrent:"Download current", exportAll:"Export all", screenshotNeeded:"screenshot needed",
     noShot:(d)=>`No ${d} screenshot on this slide`, exporting:"Exporting\u2026", saved:"Saved \u2713",
     addShotFirst:"Add a screenshot first",
-    exportingN:(n,l)=>`Exporting\u2026 ${n} files (${l})`, doneN:(n)=>`Done \u2014 ${n} files saved \u2713`
+    exportingN:(n,l)=>`Exporting\u2026 ${n} files (${l})`, doneN:(n)=>`Done \u2014 ${n} files saved \u2713`,
+    exportingZip:(i,n,l)=>`Exporting\u2026 ${i}/${n} (${l})`, zipSaved:(n)=>`ZIP saved \u2014 ${n} files \u2713`
   },
   ja:{
     slideContent:"\u30b9\u30e9\u30a4\u30c9\u5185\u5bb9", title:"\u30bf\u30a4\u30c8\u30eb", subtitle:"\u30b5\u30d6\u30bf\u30a4\u30c8\u30eb",
@@ -282,7 +283,8 @@ const STRINGS = {
     downloadCurrent:"\u73fe\u5728\u306e\u3082\u306e\u3092\u4fdd\u5b58", exportAll:"\u3059\u3079\u3066\u66f8\u304d\u51fa\u3057", screenshotNeeded:"\u8981\u30b9\u30af\u30ea\u30fc\u30f3\u30b7\u30e7\u30c3\u30c8",
     noShot:(d)=>`\u3053\u306e\u30b9\u30e9\u30a4\u30c9\u306b${d}\u30b9\u30af\u30ea\u30fc\u30f3\u30b7\u30e7\u30c3\u30c8\u304c\u3042\u308a\u307e\u305b\u3093`, exporting:"\u66f8\u304d\u51fa\u3057\u4e2d\u2026", saved:"\u4fdd\u5b58\u3057\u307e\u3057\u305f \u2713",
     addShotFirst:"\u5148\u306b\u30b9\u30af\u30ea\u30fc\u30f3\u30b7\u30e7\u30c3\u30c8\u3092\u8ffd\u52a0\u3057\u3066\u304f\u3060\u3055\u3044",
-    exportingN:(n,l)=>`\u66f8\u304d\u51fa\u3057\u4e2d\u2026 ${n}\u679a (${l})`, doneN:(n)=>`\u5b8c\u4e86 \u2014 ${n}\u679a\u3092\u4fdd\u5b58 \u2713`
+    exportingN:(n,l)=>`\u66f8\u304d\u51fa\u3057\u4e2d\u2026 ${n}\u679a (${l})`, doneN:(n)=>`\u5b8c\u4e86 \u2014 ${n}\u679a\u3092\u4fdd\u5b58 \u2713`,
+    exportingZip:(i,n,l)=>`\u66f8\u304d\u51fa\u3057\u4e2d\u2026 ${i}/${n} (${l})`, zipSaved:(n)=>`ZIP\u3092\u4fdd\u5b58 \u2014 ${n}\u679a \u2713`
   },
   ko:{
     slideContent:"\uc2ac\ub77c\uc774\ub4dc \ub0b4\uc6a9", title:"\ud0c0\uc774\ud2c0", subtitle:"\uc11c\ube0c\ud0c0\uc774\ud2c0",
@@ -301,7 +303,8 @@ const STRINGS = {
     downloadCurrent:"\ud604\uc7ac \ud56d\ubaa9 \uc800\uc7a5", exportAll:"\uc804\uccb4 \ub0b4\ubcf4\ub0b4\uae30", screenshotNeeded:"\uc2a4\ud06c\ub9b0\uc0f7 \ud544\uc694",
     noShot:(d)=>`\uc774 \uc2ac\ub77c\uc774\ub4dc\uc5d0 ${d} \uc2a4\ud06c\ub9b0\uc0f7\uc774 \uc5c6\uc2b5\ub2c8\ub2e4`, exporting:"\ub0b4\ubcf4\ub0b4\ub294 \uc911\u2026", saved:"\uc800\uc7a5\ub428 \u2713",
     addShotFirst:"\uba3c\uc800 \uc2a4\ud06c\ub9b0\uc0f7\uc744 \ucd94\uac00\ud558\uc138\uc694",
-    exportingN:(n,l)=>`\ub0b4\ubcf4\ub0b4\ub294 \uc911\u2026 ${n}\uc7a5 (${l})`, doneN:(n)=>`\uc644\ub8cc \u2014 ${n}\uc7a5 \uc800\uc7a5 \u2713`
+    exportingN:(n,l)=>`\ub0b4\ubcf4\ub0b4\ub294 \uc911\u2026 ${n}\uc7a5 (${l})`, doneN:(n)=>`\uc644\ub8cc \u2014 ${n}\uc7a5 \uc800\uc7a5 \u2713`,
+    exportingZip:(i,n,l)=>`\ub0b4\ubcf4\ub0b4\ub294 \uc911\u2026 ${i}/${n} (${l})`, zipSaved:(n)=>`ZIP \uc800\uc7a5 \u2014 ${n}\uc7a5 \u2713`
   }
 };
 function t(key, ...args){
@@ -498,6 +501,44 @@ function download(blob,name){
 }
 const ext=()=>state.format==="jpeg"?"jpg":"png";
 
+/* ---------- minimal ZIP writer (STORE / no compression) ----------
+   Entries are stored uncompressed: PNG/JPEG payloads are already compressed,
+   so adding a DEFLATE library (e.g. inlined JSZip) buys ~0 size for real bloat.
+   Reuses crc32() from the PNG encoder above. Standard ZIP (no ZIP64) — fine for
+   our export sizes — and keeps the single-file, no-dependency principle. */
+function dosDateTime(d){
+  const time=((d.getHours()<<11)|(d.getMinutes()<<5)|(d.getSeconds()>>1))&0xFFFF;
+  const date=(((d.getFullYear()-1980)<<9)|((d.getMonth()+1)<<5)|d.getDate())&0xFFFF;
+  return {time,date};
+}
+function makeZip(files){
+  const enc=new TextEncoder(), {time,date}=dosDateTime(new Date());
+  const parts=[], central=[]; let offset=0;
+  for(const f of files){
+    const name=enc.encode(f.name), data=f.data, crc=crc32(data), n=data.length;
+    const lh=new Uint8Array(30+name.length), dv=new DataView(lh.buffer);
+    dv.setUint32(0,0x04034b50,true); dv.setUint16(4,20,true); dv.setUint16(6,0x0800,true); // sig, ver, UTF-8 flag
+    dv.setUint16(8,0,true); dv.setUint16(10,time,true); dv.setUint16(12,date,true);        // method 0 = store
+    dv.setUint32(14,crc,true); dv.setUint32(18,n,true); dv.setUint32(22,n,true);           // crc, csize, usize
+    dv.setUint16(26,name.length,true); dv.setUint16(28,0,true); lh.set(name,30);
+    parts.push(lh,data); central.push({name,crc,n,offset}); offset+=lh.length+n;
+  }
+  const cdStart=offset;
+  for(const c of central){
+    const ch=new Uint8Array(46+c.name.length), dv=new DataView(ch.buffer);
+    dv.setUint32(0,0x02014b50,true); dv.setUint16(4,20,true); dv.setUint16(6,20,true);
+    dv.setUint16(8,0x0800,true); dv.setUint16(10,0,true); dv.setUint16(12,time,true); dv.setUint16(14,date,true);
+    dv.setUint32(16,c.crc,true); dv.setUint32(20,c.n,true); dv.setUint32(24,c.n,true);
+    dv.setUint16(28,c.name.length,true); dv.setUint32(42,c.offset,true); ch.set(c.name,46);
+    parts.push(ch); offset+=ch.length;
+  }
+  const eocd=new Uint8Array(22), dv=new DataView(eocd.buffer);
+  dv.setUint32(0,0x06054b50,true); dv.setUint16(8,central.length,true); dv.setUint16(10,central.length,true);
+  dv.setUint32(12,offset-cdStart,true); dv.setUint32(16,cdStart,true);
+  parts.push(eocd);
+  return new Blob(parts,{type:"application/zip"});
+}
+
 async function exportCurrent(){
   const slide=state.slides[state.current];
   if(!slide.img[state.device]) return toast(t("noShot", state.device));
@@ -511,13 +552,17 @@ async function exportAll(){
   locs.forEach(L=>["iphone","ipad"].forEach(dev=>state.slides.forEach((s,i)=>{
     if(s.img[dev]) jobs.push({L,dev,s,i}); })));
   if(!jobs.length) return toast(t("addShotFirst"));
-  toast(t("exportingN", jobs.length, locs.map(l=>LOC_LABEL[l]).join("/")));
-  for(const j of jobs){
-    const b=await exportBlob(j.dev, j.s, j.L);
-    download(b, `${j.L}_${j.dev}_${String(j.i+1).padStart(2,"0")}.${ext()}`);
-    await new Promise(r=>setTimeout(r,350));
+  const locLabel=locs.map(l=>LOC_LABEL[l]).join("/"), files=[];
+  for(let k=0;k<jobs.length;k++){
+    const j=jobs[k];
+    toast(t("exportingZip", k+1, jobs.length, locLabel));
+    const b=await exportBlob(j.dev, j.s, j.L);                 // reuses font gate + no-alpha encoder
+    const data=new Uint8Array(await b.arrayBuffer());
+    // App Store Connect maps one folder per locale: ja/iphone_01.png, ko/ipad_02.png, …
+    files.push({name:`${j.L}/${j.dev}_${String(j.i+1).padStart(2,"0")}.${ext()}`, data});
   }
-  toast(t("doneN", jobs.length));
+  download(makeZip(files), "shotsmith_screenshots.zip");
+  toast(t("zipSaved", jobs.length));
 }
 
 /* ---------- slide list ---------- */

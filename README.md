@@ -22,7 +22,9 @@ No accounts. No cloud. No tracking. Everything runs locally in the browser.
   corner radius, drop shadow, a **Fit / Fill** toggle for screenshot sizing (aspect ratio preserved),
   and a **Trim top** control to cleanly remove the simulator status bar.
 - **Up to 10 slides**, one screenshot set per device.
-- **Batch export** — "Export all" outputs every slide × device × language in one go.
+- **Batch ZIP export** — "Export all" bundles every slide × device × language into a single
+  `shotsmith_screenshots.zip`, foldered `{language}/{device}_{NN}.png` so each folder maps to App
+  Store Connect's per-language slots.
 
 ## Usage
 
@@ -31,8 +33,9 @@ No accounts. No cloud. No tracking. Everything runs locally in the browser.
 3. Drag your iPhone and iPad screenshots into the two drop zones.
    - The same screenshot is reused across languages — only the text is translated.
 4. Tweak background, colors, and layout to taste.
-5. Click **Export all**. Files are named `{lang}_{device}_{NN}.png`
-   (e.g. `ja_iphone_01.png`) — drop them straight into App Store Connect's per-language slots.
+5. Click **Export all** to download one `shotsmith_screenshots.zip`, with files foldered as
+   `{lang}/{device}_{NN}.png` (e.g. `ja/iphone_01.png`) — each folder maps to App Store Connect's
+   per-language slots. (**Download current** still saves a single `{lang}_{device}_{NN}.png`.)
 
 ### A note on store copy
 Apple requires overlay text to be **descriptive and factual**. Avoid superlatives, rankings,
@@ -85,7 +88,7 @@ Bundled fonts (Noto Sans JP / KR): **SIL Open Font License 1.1** (see [fonts/OFL
 - iPhone 1320×2868 / iPad 2064×2752 정확한 픽셀 출력
 - 브라우저가 넣는 알파 채널을 제거한 RGB PNG(Apple 리젝 방지) / JPEG 선택 가능
 - 언어 탭에서 문구만 번역, 스크린샷은 공통 사용 (JA/KR 비면 EN으로 자동 대체)
-- **Export all** → `언어_기기_번호.png` 형식으로 일괄 저장 → App Store Connect 언어별 슬롯에 그대로 사용
+- **Export all** → `shotsmith_screenshots.zip` 하나로 묶어 저장(`언어/기기_번호.png` 폴더 구조) → App Store Connect 언어별 슬롯에 그대로 사용
 
 로컬 실행은 `python3 -m http.server` 로 띄운 뒤 `http://localhost:8000` 접속을 권장합니다
 (폰트가 `file://`에서 로드되지 않는 브라우저가 있어서입니다).

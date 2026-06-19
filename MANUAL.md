@@ -51,7 +51,7 @@ font loading — the local server avoids that entirely.)
 - **iPhone / iPad** — switch which device you're previewing and exporting.
 - **PNG / JPEG** — output format. PNG is alpha-free and best for text; JPEG is also accepted.
 - **Download current** — saves just the slide/device/language you're viewing.
-- **Export all** — saves every slide × device × language in one go.
+- **Export all** — bundles every slide × device × language into a single `shotsmith_screenshots.zip`.
 
 **Left panel — Slide content**
 - **EN / 日本語 / 한국어 tabs** — pick the language you're editing. The whole interface and the
@@ -87,7 +87,8 @@ Japanese uses Noto Sans JP and Korean uses Noto Sans KR automatically.
 4. Drag your iPhone screenshot into **iPhone shot**, and your iPad screenshot into **iPad shot**.
 5. Adjust **Background** colors and, if you see a status bar, raise **Trim top** to ~3–4%.
 6. Add more slides with **+ Add slide** and repeat (up to 10).
-7. Click **Export all**. Done — drag the files into App Store Connect.
+7. Click **Export all** — you get one `shotsmith_screenshots.zip`. Unzip it and drag each language
+   folder's files into App Store Connect.
 
 ---
 
@@ -98,21 +99,23 @@ Japanese uses Noto Sans JP and Korean uses Noto Sans KR automatically.
 3. Screenshots are shared — you don't re-upload them per language.
 4. If you leave a Japanese or Korean field empty, that screenshot falls back to the English text,
    so a half-translated set still exports complete images.
-5. **Export all** outputs only the languages that have text (English is always included), named
-   `en_iphone_01.png`, `ja_iphone_01.png`, `ko_ipad_02.png`, and so on.
+5. **Export all** outputs only the languages that have text (English is always included), as one
+   `shotsmith_screenshots.zip` foldered by language — `en/iphone_01.png`, `ja/iphone_01.png`,
+   `ko/ipad_02.png`, and so on.
 
-In App Store Connect, each language has its own screenshot slots — drop the matching `xx_…` files
-into each language.
+In App Store Connect, each language has its own screenshot slots — unzip and drop each `xx/…`
+folder's files into the matching language.
 
 ---
 
 ## 7. Exporting & file names
 
 - **Format:** PNG (alpha-free, lossless, best for UI text) or JPEG (smaller, also accepted).
-- **Download current:** one file for the current slide/device/language.
-- **Export all:** the full matrix. Files download one by one; if your browser asks to allow
-  multiple downloads, allow it.
-- **File names:** `{language}_{device}_{NN}.{ext}` — e.g. `ja_ipad_03.png`.
+- **Download current:** one file for the current slide/device/language, named
+  `{language}_{device}_{NN}.{ext}` — e.g. `ja_ipad_03.png`.
+- **Export all:** the full matrix as a single `shotsmith_screenshots.zip` (one download, no
+  multi-download prompt), with files foldered by language: `{language}/{device}_{NN}.{ext}` —
+  e.g. `ja/iphone_01.png`.
 
 ---
 
@@ -148,7 +151,8 @@ get your screenshots rejected. Describe what the screen does instead.
 4. 상태바(시간·배터리)가 보이면 **Trim top**을 3~4%로 올려 잘라냅니다.
 5. **日本語 / 한국어** 탭에서 번역 문구를 입력합니다(스크린샷은 공통, 비우면 EN으로 자동 대체).
 6. 배경색·레이아웃을 다듬고 **+ Add slide**로 슬라이드를 추가합니다(최대 10장).
-7. **Export all**을 누르면 `언어_기기_번호.png` 형식으로 일괄 저장 → App Store Connect 언어별 슬롯에 사용.
+7. **Export all**을 누르면 `shotsmith_screenshots.zip` 하나로 묶여 저장됩니다(`언어/기기_번호.png` 폴더 구조).
+   압축을 풀어 언어별 폴더의 파일을 App Store Connect 언어 슬롯에 넣으세요.
 
 **주의:** 오버레이 문구는 사실적 톤으로. "최고/1위/수상/경쟁사 비교"는 Apple 리젝 사유가 될 수 있습니다.
 
