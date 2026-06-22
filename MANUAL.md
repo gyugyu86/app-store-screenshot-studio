@@ -52,6 +52,7 @@ font loading — the local server avoids that entirely.)
 - **PNG / JPEG** — output format. PNG is alpha-free and best for text; JPEG is also accepted.
 - **Download current** — saves just the slide/device/language you're viewing.
 - **Export all** — bundles every slide × device × language into a single `shotsmith_screenshots.zip`.
+  Use the **iPhone / iPad** checkboxes beside it to include only the device class(es) you need.
 
 **Left panel — Slide content**
 - **EN / 日本語 / 한국어 tabs** — pick the language you're editing. The whole interface and the
@@ -115,7 +116,8 @@ folder's files into the matching language.
   `{language}_{device}_{NN}.{ext}` — e.g. `ja_ipad_03.png`.
 - **Export all:** the full matrix as a single `shotsmith_screenshots.zip` (one download, no
   multi-download prompt), with files foldered by language: `{language}/{device}_{NN}.{ext}` —
-  e.g. `ja/iphone_01.png`.
+  e.g. `ja/iphone_01.png`. Tick only **iPhone** or only **iPad** beside the button to export a
+  single device class (e.g. when you're shipping iPhone-only) — the other one is left out entirely.
 
 ---
 

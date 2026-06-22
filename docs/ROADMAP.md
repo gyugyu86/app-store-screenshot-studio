@@ -16,6 +16,7 @@ Most paid/SaaS tools lose users to bloat and friction (long onboarding, 45-minut
 - **Fit / Fill** screenshot sizing (aspect ratio preserved).  
 - **Trim top** to remove the simulator status bar.  
 - **Batch ZIP export** — "Export all" bundles every slide × device × locale into a single `shotsmith_screenshots.zip`, foldered `{locale}/{device}_{NN}.{ext}` (e.g. `ja/iphone_01.png`) for App Store Connect's per-locale slots.
+- **Per-device export selection** — iPhone / iPad checkboxes on "Export all" so an iPhone-only (or iPad-only) listing doesn't produce the other class's files.
 
 ## Next up (v2) — high ROI, in priority order
 
