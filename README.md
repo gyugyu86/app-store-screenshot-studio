@@ -12,7 +12,7 @@ No accounts. No cloud. No tracking. Everything runs locally in the browser.
 
 ## Features
 
-- **Exact App Store dimensions** — iPhone 6.9″ (1320×2868) and iPad 13″ (2064×2752), pixel-perfect.
+- **Exact App Store dimensions** — iPhone 6.5″ (1284×2778) and iPad 13″ (2064×2752), pixel-perfect.
 - **No-alpha PNG export** — strips the alpha channel that browsers add by default, so App Store
   Connect won't reject your uploads. (JPEG export also available.)
 - **EN / JA / KR localization** — write title/subtitle per language; Japanese and Korean render with
@@ -61,7 +61,7 @@ Your tool will be live at `https://<user>.github.io/<repo>/`. No build step need
 
 | Device class | Required size | Notes |
 |---|---|---|
-| iPhone 6.9″ | 1320×2868 | Primary; Apple auto-scales to smaller iPhones |
+| iPhone 6.5″ | 1284×2778 | App Store Connect's iPhone slot (1242×2688 also accepted) |
 | iPad 13″ | 2064×2752 | Required if your app supports iPad (2048×2732 also accepted) |
 | Format | PNG or JPEG | **No alpha/transparency**, sRGB, 1–10 per device class |
 
@@ -85,7 +85,7 @@ Bundled fonts (Noto Sans JP / KR): **SIL Open Font License 1.1** (see [fonts/OFL
 끌어다 놓고 타이틀·서브타이틀을 입력하면, **정확한 규격의 업로드용 파일**을 만들어 줍니다.
 **영어·일본어·한국어** 로컬라이제이션을 기본 지원합니다(Noto Sans JP/KR 폰트 번들).
 
-- iPhone 1320×2868 / iPad 2064×2752 정확한 픽셀 출력
+- iPhone 1284×2778 / iPad 2064×2752 정확한 픽셀 출력
 - 브라우저가 넣는 알파 채널을 제거한 RGB PNG(Apple 리젝 방지) / JPEG 선택 가능
 - 언어 탭에서 문구만 번역, 스크린샷은 공통 사용 (JA/KR 비면 EN으로 자동 대체)
 - **Export all** → `shotsmith_screenshots.zip` 하나로 묶어 저장(`언어/기기_번호.png` 폴더 구조) → App Store Connect 언어별 슬롯에 그대로 사용

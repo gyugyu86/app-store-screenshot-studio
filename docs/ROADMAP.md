@@ -8,7 +8,7 @@ Most paid/SaaS tools lose users to bloat and friction (long onboarding, 45-minut
 
 ## Status — shipped (v1 \+ current)
 
-- Exact-dimension export: iPhone 1320×2868, iPad 2064×2752.  
+- Exact-dimension export: iPhone 1284×2778 (6.5″), iPad 2064×2752.  
 - Alpha-free RGB PNG (CompressionStream encoder) \+ JPEG fallback.  
 - Top-text layout: gradient/solid background, title/subtitle, color/size controls.  
 - Multiple slides (up to 10), live preview.  
@@ -25,6 +25,7 @@ Most paid/SaaS tools lose users to bloat and friction (long onboarding, 45-minut
 ## Decisions
 
 - **2026-06-19 — Batch ZIP via hand-rolled STORE writer, not JSZip.** Shipped v2 #1. Exported PNG/JPEG are already compressed, so the archive stores entries uncompressed (STORE method); DEFLATE would yield ~0 size gain while forcing a ~90–100KB inlined library, breaking the "single file, no dependencies" principle. The small `makeZip()` reuses the PNG encoder's existing `crc32()`. Standard ZIP (no ZIP64) — adequate for realistic export sizes. Each image still flows through `exportBlob()`, so the font-load gate and the no-alpha RGB PNG encoder are preserved. Validated with `unzip -t` (CRC/integrity) and byte-equality round-trip.
+- **2026-06-22 — iPhone export size 1320×2868 (6.9″) → 1284×2778 (6.5″).** Real App Store Connect rejection: the project's iPhone screenshot slot is the **6.5″ display**, which accepts 1242×2688 or 1284×2778, not the 6.9″ 1320×2868 we were emitting (iPad 2064×2752 was unaffected). Switched the single iPhone target to the higher-res **1284×2778**. Aspect (~19.5:9) is nearly identical, so the top-text layout is unchanged. Kept as a single size rather than a 6.9″/6.5″ toggle to stay minimal; revisit with a toggle only if a listing needs both slots.
 
 ## Later (v3) — only if users ask
 
@@ -53,7 +54,7 @@ These are the exact features that made competitor tools slow and that our target
 
 ## Reference — output specs (2026)
 
-- iPhone 6.9″: 1320×2868 (primary; Apple auto-scales to smaller iPhones).  
+- iPhone 6.5″: 1284×2778 (App Store Connect's iPhone slot; 1242×2688 also accepted). *(6.9″ 1320×2868 was the earlier target — see Decisions.)*  
 - iPad 13″: 2064×2752 (2048×2732 also accepted).  
 - Format: PNG/JPEG, **no alpha**, sRGB, 1–10 per device class.  
 - Verify in App Store Connect before each release; specs change as Apple adds devices.

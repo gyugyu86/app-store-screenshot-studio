@@ -11,7 +11,7 @@ at the exact sizes App Store Connect requires.
 Shotsmith turns raw app screenshots into polished App Store screenshots:
 
 - Puts a **title + subtitle** above your screenshot on a colored background.
-- Exports at **exact App Store dimensions** (iPhone 1320×2868, iPad 2064×2752).
+- Exports at **exact App Store dimensions** (iPhone 1284×2778, iPad 2064×2752).
 - Produces **alpha-free PNG** files (the kind App Store Connect accepts), or JPEG.
 - Supports **English / Japanese / Korean** — text *and* the interface.
 
@@ -134,7 +134,7 @@ get your screenshots rejected. Describe what the screen does instead.
 - **Upload rejected for transparency/alpha:** make sure you exported with this tool (it strips the
   alpha channel). If your browser lacks `CompressionStream`, switch to **JPEG**.
 - **Wrong size error in App Store Connect:** confirm the device toggle matches the slot
-  (iPhone 6.9″ = 1320×2868, iPad 13″ = 2064×2752).
+  (iPhone 6.5″ = 1284×2778, iPad 13″ = 2064×2752).
 - **Status bar still visible:** raise **Trim top** a little more.
 
 ---
