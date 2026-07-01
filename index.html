@@ -47,6 +47,23 @@
   .expsel label{display:inline-flex;align-items:center;gap:5px;cursor:pointer;user-select:none;color:var(--ink)}
   .expsel input{accent-color:var(--accent);cursor:pointer;width:15px;height:15px;margin:0}
   .expsel .sep{width:1px;height:15px;background:var(--line);margin:0 1px}
+  .cv{font-size:10px;color:var(--faint)}
+  .moredev{position:relative;display:inline-flex}
+  .moredev>summary{list-style:none;cursor:pointer;border:1px solid var(--line);border-radius:9px;background:var(--bg);padding:7px 12px;font-size:13px;color:var(--muted);display:flex;align-items:center;gap:6px;white-space:nowrap}
+  .moredev>summary::-webkit-details-marker{display:none}
+  .moredev[open]>summary,.moredev>summary:hover{border-color:var(--faint);color:var(--ink)}
+  .moredev.moreactive>summary{color:var(--accent);border-color:var(--accent-soft)}
+  .moredev .menu{position:absolute;top:calc(100% + 8px);right:0;background:var(--panel2);border:1px solid var(--line);border-radius:10px;padding:6px;z-index:60;box-shadow:0 12px 34px rgba(0,0,0,.55);display:flex;flex-direction:column;gap:2px;min-width:210px}
+  .moredev .menu button{width:100%;justify-content:space-between;background:transparent;border:0;color:var(--muted);padding:8px 10px;border-radius:7px;font-size:13px;cursor:pointer;display:flex;gap:12px;align-items:center;font-family:var(--ui)}
+  .moredev .menu button:hover{background:var(--bg);color:var(--ink)}
+  .moredev .menu button.on{color:var(--accent)}
+  .moredev .menu button .d{font-family:var(--mono);font-size:10px;color:var(--faint)}
+  .expmenu{position:relative;display:inline-flex}
+  .expmenu>summary{list-style:none;cursor:pointer}
+  .expmenu>summary::-webkit-details-marker{display:none}
+  .expmenu .menu{position:absolute;top:calc(100% + 8px);right:0;background:var(--panel2);border:1px solid var(--line);border-radius:10px;padding:12px 14px;z-index:60;box-shadow:0 12px 34px rgba(0,0,0,.55)}
+  .expmenu .expsel{flex-direction:column;align-items:flex-start;gap:9px}
+  .expmenu .expsel .sep{width:100%;height:1px;margin:3px 0}
   .preslab{font-size:11px;color:var(--faint);margin-bottom:7px}
   .presets{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:13px}
   .presets button{width:38px;height:26px;border-radius:7px;border:1px solid var(--line);cursor:pointer;padding:0}
@@ -136,30 +153,40 @@
     <button data-dev="iphone" class="on">iPhone <span class="d">1284×2778</span></button>
     <button data-dev="ipad">iPad <span class="d">2064×2752</span></button>
     <button data-dev="android">Android <span class="d">1080×1920</span></button>
-    <button data-dev="iphone67">iPhone 6.7″ <span class="d">1290×2796</span></button>
-    <button data-dev="androidtab">Android tab <span class="d">1600×2560</span></button>
-    <button data-dev="mac">Mac <span class="d">2880×1800</span></button>
-    <button data-dev="feature">Feature <span class="d">1024×500</span></button>
   </div>
+  <details class="moredev" id="moreDev">
+    <summary id="moreSummary">More formats <span class="cv">▾</span></summary>
+    <div class="menu">
+      <button data-dev="iphone67">iPhone 6.7″ <span class="d">1290×2796</span></button>
+      <button data-dev="androidtab">Android tablet <span class="d">1600×2560</span></button>
+      <button data-dev="mac">Mac <span class="d">2880×1800</span></button>
+      <button data-dev="feature">Feature graphic <span class="d">1024×500</span></button>
+    </div>
+  </details>
   <div class="seg" id="fmtSeg">
     <button data-fmt="png" class="on">PNG</button>
     <button data-fmt="jpeg">JPEG</button>
   </div>
   <button class="btn" id="exportOne" data-i18n="downloadCurrent">Download current</button>
-  <div class="expsel">
-    <span data-i18n="exportInclude">Include:</span>
-    <label><input type="checkbox" id="exp-iphone" checked> iPhone</label>
-    <label><input type="checkbox" id="exp-ipad" checked> iPad</label>
-    <label><input type="checkbox" id="exp-android" checked> Android</label>
-    <label><input type="checkbox" id="exp-iphone67" checked> 6.7″</label>
-    <label><input type="checkbox" id="exp-androidtab" checked> A.tab</label>
-    <label><input type="checkbox" id="exp-mac" checked> Mac</label>
-    <label><input type="checkbox" id="exp-feature"> Feat.</label>
-    <span class="sep"></span>
-    <label><input type="checkbox" id="exp-en"> EN</label>
-    <label><input type="checkbox" id="exp-ja"> 日本語</label>
-    <label><input type="checkbox" id="exp-ko"> 한국어</label>
-  </div>
+  <details class="expmenu" id="expMenu">
+    <summary class="btn">Export scope <span class="cv">▾</span></summary>
+    <div class="menu">
+      <div class="expsel">
+        <span data-i18n="exportInclude">Include:</span>
+        <label><input type="checkbox" id="exp-iphone" checked> iPhone</label>
+        <label><input type="checkbox" id="exp-ipad" checked> iPad</label>
+        <label><input type="checkbox" id="exp-android" checked> Android</label>
+        <label><input type="checkbox" id="exp-iphone67" checked> iPhone 6.7″</label>
+        <label><input type="checkbox" id="exp-androidtab" checked> Android tablet</label>
+        <label><input type="checkbox" id="exp-mac" checked> Mac</label>
+        <label><input type="checkbox" id="exp-feature"> Feature graphic</label>
+        <span class="sep"></span>
+        <label><input type="checkbox" id="exp-en"> EN</label>
+        <label><input type="checkbox" id="exp-ja"> 日本語</label>
+        <label><input type="checkbox" id="exp-ko"> 한국어</label>
+      </div>
+    </div>
+  </details>
   <button class="btn primary" id="exportAll" data-i18n="exportAll">Export all</button>
 </header>
 
@@ -171,10 +198,6 @@
         <button data-loc="en" class="on">EN <span class="dot" id="locdot-en"></span></button>
         <button data-loc="ja">日本語 <span class="dot" id="locdot-ja"></span></button>
         <button data-loc="ko">한국어 <span class="dot" id="locdot-ko"></span></button>
-        <button data-loc="es">ES <span class="dot" id="locdot-es"></span></button>
-        <button data-loc="fr">FR <span class="dot" id="locdot-fr"></span></button>
-        <button data-loc="de">DE <span class="dot" id="locdot-de"></span></button>
-        <button data-loc="pt">PT <span class="dot" id="locdot-pt"></span></button>
       </div>
       <div class="field">
         <div class="lab"><span data-i18n="title">Title</span><span class="count" id="titleCount">0</span></div>
@@ -340,8 +363,8 @@ const DEVICES = {
   feature:{w:1024,h:500,label:"Feature graphic"}
 };
 const DEVS = Object.keys(DEVICES);   // ["iphone","ipad","android"] \u2014 single source for per-device loops
-const LOCALES = ["en","ja","ko","es","fr","de","pt"];
-const LOC_LABEL = {en:"EN", ja:"\u65e5\u672c\u8a9e", ko:"\ud55c\uad6d\uc5b4", es:"ES", fr:"FR", de:"DE", pt:"PT"};
+const LOCALES = ["en","ja","ko"];
+const LOC_LABEL = {en:"EN", ja:"\u65e5\u672c\u8a9e", ko:"\ud55c\uad6d\uc5b4"};
 const SYS_CJK = ', "Apple SD Gothic Neo","Hiragino Sans","Yu Gothic","Malgun Gothic",sans-serif';
 
 /* ---------- i18n ---------- */
@@ -426,7 +449,7 @@ function applyI18n(){
 
 const state = {
   device:"iphone", format:"png", current:0, locale:"en",
-  locSel:{en:null, ja:null, ko:null, es:null, fr:null, de:null, pt:null},   // export language selection: null=auto(follow content), bool=manual
+  locSel:{en:null, ja:null, ko:null},   // export language selection: null=auto(follow content), bool=manual
   slides:[ newSlide() ],
   style:{
     bgType:"gradient", bg1:"#0E2A47", bg2:"#1C5C8C", bgSolid:"#111827", bgImg:null,
@@ -438,7 +461,7 @@ const state = {
   }
 };
 function newSlide(){
-  return {loc:{en:{title:"",subtitle:""}, ja:{title:"",subtitle:""}, ko:{title:"",subtitle:""}, es:{title:"",subtitle:""}, fr:{title:"",subtitle:""}, de:{title:"",subtitle:""}, pt:{title:"",subtitle:""}},
+  return {loc:{en:{title:"",subtitle:""}, ja:{title:"",subtitle:""}, ko:{title:"",subtitle:""}},
           img:{iphone:null, ipad:null, android:null}};
 }
 
@@ -725,7 +748,7 @@ async function exportCurrent(){
 async function exportAll(){
   const devs=DEVS.filter(d=>$("#exp-"+d).checked);
   if(!devs.length) return toast(t("pickDevice"));
-  const locs=LOCALES.filter(L=>{ const c=$("#exp-"+L); return c ? c.checked : langChecked(L); });  // es/fr/de/pt have no box → auto-include when authored
+  const locs=LOCALES.filter(L=>$("#exp-"+L).checked);
   if(!locs.length) return toast(t("pickLang"));
   const jobs=[];
   locs.forEach(L=>devs.forEach(dev=>state.slides.forEach((s,i)=>{
@@ -886,7 +909,7 @@ function saveProject(){
 function segOn(id,attr,val){ $("#"+id).querySelectorAll("button").forEach(b=>b.classList.toggle("on", b.dataset[attr]===String(val))); }
 function syncControls(){                                  // push full state.style/device/format/locale into the DOM controls
   const s=state.style;
-  segOn("deviceSeg","dev",state.device); segOn("fmtSeg","fmt",state.format);
+  paintDevice(); segOn("fmtSeg","fmt",state.format);
   segOn("localeSeg","loc",state.locale); segOn("bgSeg","bg",s.bgType);
   segOn("shadowSeg","sh",s.shadow?"1":"0"); segOn("fillSeg","fill",s.fill?"1":"0"); segOn("frameSeg","fr",s.frame?"1":"0");
   bgRows(s.bgType);
@@ -937,7 +960,14 @@ function seg(id, attr, fn){
     $("#"+id).querySelectorAll("button").forEach(x=>x.classList.remove("on"));
     b.classList.add("on"); fn(b.dataset[attr]); }));
 }
-seg("deviceSeg","dev",v=>{state.device=v;renderPreview();});
+const MORE_DEVS=["iphone67","androidtab","mac","feature"];
+function paintDevice(){ const v=state.device;
+  document.querySelectorAll("[data-dev]").forEach(b=>b.classList.toggle("on",b.dataset.dev===v));
+  $("#moreDev").classList.toggle("moreactive",MORE_DEVS.includes(v));
+  $("#moreSummary").innerHTML=(MORE_DEVS.includes(v)?DEVICES[v].label:"More formats")+' <span class="cv">▾</span>'; }
+function setDevice(v){ state.device=v; paintDevice(); $("#moreDev").open=false; renderPreview(); }
+document.querySelectorAll("[data-dev]").forEach(b=>b.addEventListener("click",()=>setDevice(b.dataset.dev)));
+document.addEventListener("click",e=>{ document.querySelectorAll("details[open].moredev,details[open].expmenu").forEach(d=>{ if(!d.contains(e.target)) d.open=false; }); });
 seg("fmtSeg","fmt",v=>{state.format=v;renderPreview();});
 seg("localeSeg","loc",v=>{state.locale=v;applyI18n();syncEditor();renderSlides();renderPreview();});
 seg("bgSeg","bg",v=>{state.style.bgType=v; bgRows(v); renderPreview();});
