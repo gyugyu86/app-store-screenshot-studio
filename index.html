@@ -244,8 +244,18 @@
       <div class="row"><label data-i18n="titleColor">Title color</label><input type="color" id="titleColor" value="#FFFFFF"></div>
       <div class="row"><label data-i18n="subColor">Subtitle color</label><input type="color" id="subColor" value="#C9D8E8"></div>
       <div class="field" style="margin-top:4px">
-        <div class="lab"><span data-i18n="latinFont">Latin font (EN)</span></div>
+        <div class="lab"><span data-i18n="titleFont">Title font (EN)</span></div>
         <select id="fontFamily">
+          <option value='-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif'>System (San Francisco)</option>
+          <option value='"Helvetica Neue",Helvetica,Arial,sans-serif'>Helvetica Neue</option>
+          <option value='"Avenir Next","Avenir",sans-serif'>Avenir Next</option>
+          <option value='"Futura","Trebuchet MS",sans-serif'>Futura</option>
+          <option value='Georgia,"Times New Roman",serif'>Georgia (serif)</option>
+        </select>
+      </div>
+      <div class="field">
+        <div class="lab"><span data-i18n="subFont">Subtitle font (EN)</span></div>
+        <select id="subFont">
           <option value='-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif'>System (San Francisco)</option>
           <option value='"Helvetica Neue",Helvetica,Arial,sans-serif'>Helvetica Neue</option>
           <option value='"Avenir Next","Avenir",sans-serif'>Avenir Next</option>
@@ -339,7 +349,7 @@ const STRINGS = {
     background:"Background", gradient:"Gradient", solid:"Solid", image:"Image", upload:"Upload…",
     topColor:"Top color", bottomColor:"Bottom color", color:"Color",
     text:"Text", titleColor:"Title color", subColor:"Subtitle color", logo:"Logo", logoSize:"Logo size",
-    latinFont:"Latin font (EN)", fontNote:"JA \u2192 Noto Sans JP, KR \u2192 Noto Sans KR (bundled).",
+    titleFont:"Title font (EN)", subFont:"Subtitle font (EN)", fontNote:"JA \u2192 Noto Sans JP, KR \u2192 Noto Sans KR (bundled).",
     titleSize:"Title size", subSize:"Subtitle size",
     layout:"Layout", textArea:"Text area", cornerRadius:"Corner radius", trimTop:"Trim top",
     screenshot:"Screenshot", shadow:"Shadow", frame:"Device frame", frameWidth:"Frame width", frameColor:"Frame color",
@@ -361,7 +371,7 @@ const STRINGS = {
     background:"\u80cc\u666f", gradient:"\u30b0\u30e9\u30c7\u30fc\u30b7\u30e7\u30f3", solid:"\u5358\u8272", image:"\u753b\u50cf", upload:"\u30a2\u30c3\u30d7\u30ed\u30fc\u30c9",
     topColor:"\u4e0a\u306e\u8272", bottomColor:"\u4e0b\u306e\u8272", color:"\u8272",
     text:"\u30c6\u30ad\u30b9\u30c8", titleColor:"\u30bf\u30a4\u30c8\u30eb\u8272", subColor:"\u30b5\u30d6\u30bf\u30a4\u30c8\u30eb\u8272", logo:"\u30ed\u30b4", logoSize:"\u30ed\u30b4\u30b5\u30a4\u30ba",
-    latinFont:"\u30e9\u30c6\u30f3\u6587\u5b57\u30d5\u30a9\u30f3\u30c8 (EN)", fontNote:"JA \u2192 Noto Sans JP\u3001KR \u2192 Noto Sans KR\uff08\u540c\u68b1\uff09\u3002",
+    titleFont:"\u30bf\u30a4\u30c8\u30eb\u30d5\u30a9\u30f3\u30c8 (EN)", subFont:"\u30b5\u30d6\u30bf\u30a4\u30c8\u30eb\u30d5\u30a9\u30f3\u30c8 (EN)", fontNote:"JA \u2192 Noto Sans JP\u3001KR \u2192 Noto Sans KR\uff08\u540c\u68b1\uff09\u3002",
     titleSize:"\u30bf\u30a4\u30c8\u30eb\u30b5\u30a4\u30ba", subSize:"\u30b5\u30d6\u30bf\u30a4\u30c8\u30eb\u30b5\u30a4\u30ba",
     layout:"\u30ec\u30a4\u30a2\u30a6\u30c8", textArea:"\u30c6\u30ad\u30b9\u30c8\u9818\u57df", cornerRadius:"\u89d2\u4e38", trimTop:"\u4e0a\u90e8\u30c8\u30ea\u30df\u30f3\u30b0",
     screenshot:"\u30b9\u30af\u30ea\u30fc\u30f3\u30b7\u30e7\u30c3\u30c8", shadow:"\u5f71", frame:"\u30c7\u30d0\u30a4\u30b9\u30d5\u30ec\u30fc\u30e0", frameWidth:"\u30d5\u30ec\u30fc\u30e0\u5e45", frameColor:"\u30d5\u30ec\u30fc\u30e0\u8272",
@@ -383,7 +393,7 @@ const STRINGS = {
     background:"\ubc30\uacbd", gradient:"\uadf8\ub77c\ub370\uc774\uc158", solid:"\ub2e8\uc0c9", image:"\uc774\ubbf8\uc9c0", upload:"\uc5c5\ub85c\ub4dc",
     topColor:"\uc704\ucabd \uc0c9", bottomColor:"\uc544\ub798\ucabd \uc0c9", color:"\uc0c9",
     text:"\ud14d\uc2a4\ud2b8", titleColor:"\ud0c0\uc774\ud2c0 \uc0c9", subColor:"\uc11c\ube0c\ud0c0\uc774\ud2c0 \uc0c9", logo:"\ub85c\uace0", logoSize:"\ub85c\uace0 \ud06c\uae30",
-    latinFont:"\ub77c\ud2f4 \ud3f0\ud2b8 (EN)", fontNote:"JA \u2192 Noto Sans JP, KR \u2192 Noto Sans KR \uc790\ub3d9 \uc801\uc6a9(\ubc88\ub4e4 \ud3f0\ud2b8).",
+    titleFont:"\ud0c0\uc774\ud2c0 \ud3f0\ud2b8 (EN)", subFont:"\uc11c\ube0c\ud0c0\uc774\ud2c0 \ud3f0\ud2b8 (EN)", fontNote:"JA \u2192 Noto Sans JP, KR \u2192 Noto Sans KR \uc790\ub3d9 \uc801\uc6a9(\ubc88\ub4e4 \ud3f0\ud2b8).",
     titleSize:"\ud0c0\uc774\ud2c0 \ud06c\uae30", subSize:"\uc11c\ube0c\ud0c0\uc774\ud2c0 \ud06c\uae30",
     layout:"\ub808\uc774\uc544\uc6c3", textArea:"\ud14d\uc2a4\ud2b8 \uc601\uc5ed", cornerRadius:"\ubaa8\uc11c\ub9ac \ub465\uae00\uae30", trimTop:"\uc0c1\ub2e8 \uc790\ub974\uae30",
     screenshot:"\uc2a4\ud06c\ub9b0\uc0f7", shadow:"\uadf8\ub9bc\uc790", frame:"\uae30\uae30 \ud504\ub808\uc784", frameWidth:"\ud504\ub808\uc784 \ub450\uaed8", frameColor:"\ud504\ub808\uc784 \uc0c9",
@@ -415,6 +425,7 @@ const state = {
     bgType:"gradient", bg1:"#0E2A47", bg2:"#1C5C8C", bgSolid:"#111827", bgImg:null,
     titleColor:"#FFFFFF", subColor:"#C9D8E8", logo:null, logoSize:0.12,
     fontFamily:'-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif',
+    subFont:'-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif',
     titleSize:0.058, subSize:0.034,
     textZone:0.26, corner:0.06, shadow:true, fill:false, trimTop:0, frame:false, frameW:0.018, frameColor:"#1C1C1E"
   }
@@ -436,8 +447,7 @@ const $ = s=>document.querySelector(s);
 const preview = $("#preview"), pctx = preview.getContext("2d");
 
 /* ---------- helpers ---------- */
-function familyFor(locale){
-  const latin=state.style.fontFamily;
+function familyFor(locale, latin){
   if(locale==="ja") return '"Noto Sans JP",'+latin+SYS_CJK;
   if(locale==="ko") return '"Noto Sans KR",'+latin+SYS_CJK;
   return latin+SYS_CJK;
@@ -519,7 +529,7 @@ function renderTo(ctx, dev, slide, locale, forExport){
   else{ const g=ctx.createLinearGradient(0,0,0,h); g.addColorStop(0,s.bg1); g.addColorStop(1,s.bg2);
         ctx.fillStyle=g; ctx.fillRect(0,0,w,h); }
 
-  const fam=familyFor(locale);
+  const titleFam=familyFor(locale, s.fontFamily), subFam=familyFor(locale, s.subFont);
   const side=w*0.085, maxW=w-2*side;
   const titlePx=Math.round(w*s.titleSize), subPx=Math.round(w*s.subSize);
   const {title,subtitle}=textFor(slide, locale);
@@ -533,13 +543,13 @@ function renderTo(ctx, dev, slide, locale, forExport){
     y += lh + Math.round(h*0.018);                                    // text starts below the logo
   }
   if(title.trim()){
-    ctx.font=`700 ${titlePx}px ${fam}`; ctx.fillStyle=s.titleColor;
+    ctx.font=`700 ${titlePx}px ${titleFam}`; ctx.fillStyle=s.titleColor;
     wrapLines(ctx,title.trim(),maxW).forEach(line=>{
       ctx.fillText(line,(w-ctx.measureText(line).width)/2,y); y+=Math.round(titlePx*1.16); });
   }
   if(subtitle.trim()){
     y+=Math.round(h*0.014);
-    ctx.font=`500 ${subPx}px ${fam}`; ctx.fillStyle=s.subColor;
+    ctx.font=`500 ${subPx}px ${subFam}`; ctx.fillStyle=s.subColor;
     wrapLines(ctx,subtitle.trim(),maxW).forEach(line=>{
       ctx.fillText(line,(w-ctx.measureText(line).width)/2,y); y+=Math.round(subPx*1.24); });
   }
@@ -582,7 +592,7 @@ function renderTo(ctx, dev, slide, locale, forExport){
     ctx.save(); ctx.setLineDash([14,12]); ctx.lineWidth=3; ctx.strokeStyle=`rgba(${ph},0.28)`;
     roundRectPath(ctx,shotSide,regTop,regW,regH,40); ctx.stroke(); ctx.setLineDash([]);
     ctx.fillStyle=`rgba(${ph},0.5)`; ctx.textAlign="center"; ctx.textBaseline="middle";
-    ctx.font=`500 ${Math.round(w*0.034)}px ${fam}`;
+    ctx.font=`500 ${Math.round(w*0.034)}px ${titleFam}`;
     ctx.fillText(`Drop your ${DEVICES[dev].label} screenshot`, w/2, regTop+regH/2);
     ctx.restore();
   }
@@ -855,7 +865,7 @@ function syncControls(){                                  // push full state.sty
   segOn("shadowSeg","sh",s.shadow?"1":"0"); segOn("fillSeg","fill",s.fill?"1":"0"); segOn("frameSeg","fr",s.frame?"1":"0");
   bgRows(s.bgType);
   $("#bg1").value=s.bg1; $("#bg2").value=s.bg2; $("#bgSolid").value=s.bgSolid;
-  $("#titleColor").value=s.titleColor; $("#subColor").value=s.subColor; $("#fontFamily").value=s.fontFamily;
+  $("#titleColor").value=s.titleColor; $("#subColor").value=s.subColor; $("#fontFamily").value=s.fontFamily; $("#subFont").value=s.subFont;
   const sl=(id,vId,val,fmt)=>{ $("#"+id).value=val; $("#"+vId).textContent=fmt(val); };
   sl("titleSize","titleSizeV",Math.round(s.titleSize*1000),v=>(v/10).toFixed(1)+"%");
   sl("subSize","subSizeV",Math.round(s.subSize*1000),v=>(v/10).toFixed(1)+"%");
@@ -929,6 +939,7 @@ $("#bgSolid").addEventListener("input",e=>{state.style.bgSolid=e.target.value;re
 $("#titleColor").addEventListener("input",e=>{state.style.titleColor=e.target.value;renderPreview();});
 $("#subColor").addEventListener("input",e=>{state.style.subColor=e.target.value;renderPreview();});
 $("#fontFamily").addEventListener("change",e=>{state.style.fontFamily=e.target.value;renderPreview();});
+$("#subFont").addEventListener("change",e=>{state.style.subFont=e.target.value;renderPreview();});
 
 function slider(id,vId,fmt,fn){const el=$("#"+id);el.addEventListener("input",()=>{
   const v=parseFloat(el.value);$("#"+vId).textContent=fmt(v);fn(v);renderPreview();});}
