@@ -20,7 +20,8 @@ No accounts. No cloud. No tracking. Everything runs locally in the browser.
   The **tool interface itself** also switches language with the tab (EN / 日本語 / 한국어).
 - **Top-text layout** with gradient or solid backgrounds, adjustable text size, color, text area,
   corner radius, drop shadow, a **Fit / Fill** toggle for screenshot sizing (aspect ratio preserved),
-  and a **Trim top** control to cleanly remove the simulator status bar.
+  a **Trim top** control to cleanly remove the simulator status bar, and an optional generic
+  **device frame** (a plain rounded bezel, no Apple artwork).
 - **Up to 10 slides**, one screenshot set per device.
 - **Instant start** — "Try a sample" loads a demo mockup + copy so you see a result immediately (no
   screenshots needed yet), and one-click style **Presets** give a polished look fast.
