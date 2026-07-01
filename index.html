@@ -169,6 +169,10 @@
         <button data-loc="en" class="on">EN <span class="dot" id="locdot-en"></span></button>
         <button data-loc="ja">日本語 <span class="dot" id="locdot-ja"></span></button>
         <button data-loc="ko">한국어 <span class="dot" id="locdot-ko"></span></button>
+        <button data-loc="es">ES <span class="dot" id="locdot-es"></span></button>
+        <button data-loc="fr">FR <span class="dot" id="locdot-fr"></span></button>
+        <button data-loc="de">DE <span class="dot" id="locdot-de"></span></button>
+        <button data-loc="pt">PT <span class="dot" id="locdot-pt"></span></button>
       </div>
       <div class="field">
         <div class="lab"><span data-i18n="title">Title</span><span class="count" id="titleCount">0</span></div>
@@ -333,8 +337,8 @@ const DEVICES = {
   mac:{w:2880,h:1800,label:"Mac"}
 };
 const DEVS = Object.keys(DEVICES);   // ["iphone","ipad","android"] \u2014 single source for per-device loops
-const LOCALES = ["en","ja","ko"];
-const LOC_LABEL = {en:"EN", ja:"\u65e5\u672c\u8a9e", ko:"\ud55c\uad6d\uc5b4"};
+const LOCALES = ["en","ja","ko","es","fr","de","pt"];
+const LOC_LABEL = {en:"EN", ja:"\u65e5\u672c\u8a9e", ko:"\ud55c\uad6d\uc5b4", es:"ES", fr:"FR", de:"DE", pt:"PT"};
 const SYS_CJK = ', "Apple SD Gothic Neo","Hiragino Sans","Yu Gothic","Malgun Gothic",sans-serif';
 
 /* ---------- i18n ---------- */
@@ -419,7 +423,7 @@ function applyI18n(){
 
 const state = {
   device:"iphone", format:"png", current:0, locale:"en",
-  locSel:{en:null, ja:null, ko:null},   // export language selection: null=auto(follow content), bool=manual
+  locSel:{en:null, ja:null, ko:null, es:null, fr:null, de:null, pt:null},   // export language selection: null=auto(follow content), bool=manual
   slides:[ newSlide() ],
   style:{
     bgType:"gradient", bg1:"#0E2A47", bg2:"#1C5C8C", bgSolid:"#111827", bgImg:null,
@@ -431,7 +435,7 @@ const state = {
   }
 };
 function newSlide(){
-  return {loc:{en:{title:"",subtitle:""}, ja:{title:"",subtitle:""}, ko:{title:"",subtitle:""}},
+  return {loc:{en:{title:"",subtitle:""}, ja:{title:"",subtitle:""}, ko:{title:"",subtitle:""}, es:{title:"",subtitle:""}, fr:{title:"",subtitle:""}, de:{title:"",subtitle:""}, pt:{title:"",subtitle:""}},
           img:{iphone:null, ipad:null, android:null}};
 }
 
@@ -699,7 +703,7 @@ async function exportCurrent(){
 async function exportAll(){
   const devs=DEVS.filter(d=>$("#exp-"+d).checked);
   if(!devs.length) return toast(t("pickDevice"));
-  const locs=LOCALES.filter(L=>$("#exp-"+L).checked);
+  const locs=LOCALES.filter(L=>{ const c=$("#exp-"+L); return c ? c.checked : langChecked(L); });  // es/fr/de/pt have no box → auto-include when authored
   if(!locs.length) return toast(t("pickLang"));
   const jobs=[];
   locs.forEach(L=>devs.forEach(dev=>state.slides.forEach((s,i)=>{
