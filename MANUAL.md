@@ -11,7 +11,7 @@ at the exact sizes App Store Connect requires.
 Shotsmith turns raw app screenshots into polished App Store screenshots:
 
 - Puts a **title + subtitle** above your screenshot on a colored background.
-- Exports at **exact App Store dimensions** (iPhone 1284×2778, iPad 2064×2752).
+- Exports at **exact store dimensions** (iPhone 1284×2778, iPad 2064×2752, Google Play Android 1080×1920).
 - Produces **alpha-free PNG** files (the kind App Store Connect accepts), or JPEG.
 - Supports **English / Japanese / Korean** — text *and* the interface.
 
@@ -50,7 +50,7 @@ font loading — the local server avoids that entirely.)
 **Top bar**
 - **Try a sample** — loads a demo slide (a generic app mockup drawn in-app + example EN/JA/KR copy)
   so you can see a finished screenshot instantly, without needing your own captures.
-- **iPhone / iPad** — switch which device you're previewing and exporting.
+- **iPhone / iPad / Android** — switch which device you're previewing and exporting.
 - **PNG / JPEG** — output format. PNG is alpha-free and best for text; JPEG is also accepted.
 - **Download current** — saves just the slide/device/language you're viewing.
 - **Export all** — bundles every slide × device × language into a single `shotsmith_screenshots.zip`.
@@ -61,11 +61,11 @@ font loading — the local server avoids that entirely.)
 - **EN / 日本語 / 한국어 tabs** — pick the language you're editing. The whole interface and the
   title/subtitle fields switch to that language. A green dot marks tabs that already have text.
 - **Title / Subtitle** — your headline and supporting line for the selected language.
-- **iPhone shot / iPad shot** — drag an image in, or click to browse. The same screenshot is
+- **iPhone / iPad / Android shot** — drag an image in, or click to browse. The same screenshot is
   reused across languages (only the text is translated).
 
 **Slides** — thumbnails of each slide (max 10). Click to select; click × to delete; **+ Add slide**
-to add. The two dots show whether an iPhone / iPad screenshot is loaded.
+to add. The three dots show whether an iPhone / iPad / Android screenshot is loaded.
 
 **Background** — Gradient (top + bottom color) or Solid (one color). The **Presets** row applies a
 coordinated background + text-color look in one click (including a clean white/light "Apple" look).

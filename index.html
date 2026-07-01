@@ -91,7 +91,7 @@
   .chip .x:hover{color:#ff7a7a;background:#2a1d1d}
   .addslide{margin-top:9px;width:100%;justify-content:center;display:flex}
 
-  .drops{display:grid;grid-template-columns:1fr 1fr;gap:9px}
+  .drops{display:grid;grid-template-columns:1fr 1fr 1fr;gap:9px}
   .drop{border:1.5px dashed var(--line);border-radius:10px;padding:12px 8px;text-align:center;cursor:pointer;background:var(--bg);transition:border-color .12s,background .12s}
   .drop:hover,.drop.over{border-color:var(--accent);background:var(--accent-soft)}
   .drop.set{border-style:solid;border-color:var(--ok-soft)}
@@ -132,6 +132,7 @@
   <div class="seg" id="deviceSeg">
     <button data-dev="iphone" class="on">iPhone <span class="d">1284×2778</span></button>
     <button data-dev="ipad">iPad <span class="d">2064×2752</span></button>
+    <button data-dev="android">Android <span class="d">1080×1920</span></button>
   </div>
   <div class="seg" id="fmtSeg">
     <button data-fmt="png" class="on">PNG</button>
@@ -142,6 +143,7 @@
     <span data-i18n="exportInclude">Include:</span>
     <label><input type="checkbox" id="exp-iphone" checked> iPhone</label>
     <label><input type="checkbox" id="exp-ipad" checked> iPad</label>
+    <label><input type="checkbox" id="exp-android" checked> Android</label>
     <span class="sep"></span>
     <label><input type="checkbox" id="exp-en"> EN</label>
     <label><input type="checkbox" id="exp-ja"> 日本語</label>
@@ -174,6 +176,10 @@
         </div>
         <div class="drop" id="dropIpad" data-dev="ipad">
           <div class="dl">IPAD SHOT</div><div class="ds" id="dsIpad">drop / click</div>
+          <input type="file" accept="image/*" hidden>
+        </div>
+        <div class="drop" id="dropAndroid" data-dev="android">
+          <div class="dl">ANDROID SHOT</div><div class="ds" id="dsAndroid">drop / click</div>
           <input type="file" accept="image/*" hidden>
         </div>
       </div>
@@ -275,8 +281,10 @@
 "use strict";
 const DEVICES = {
   iphone:{w:1284,h:2778,label:"iPhone 6.5\u2033"},
-  ipad:{w:2064,h:2752,label:"iPad 13\u2033"}
+  ipad:{w:2064,h:2752,label:"iPad 13\u2033"},
+  android:{w:1080,h:1920,label:"Android"}
 };
+const DEVS = Object.keys(DEVICES);   // ["iphone","ipad","android"] \u2014 single source for per-device loops
 const LOCALES = ["en","ja","ko"];
 const LOC_LABEL = {en:"EN", ja:"\u65e5\u672c\u8a9e", ko:"\ud55c\uad6d\uc5b4"};
 const SYS_CJK = ', "Apple SD Gothic Neo","Hiragino Sans","Yu Gothic","Malgun Gothic",sans-serif';
@@ -375,7 +383,7 @@ const state = {
 };
 function newSlide(){
   return {loc:{en:{title:"",subtitle:""}, ja:{title:"",subtitle:""}, ko:{title:"",subtitle:""}},
-          img:{iphone:null, ipad:null}};
+          img:{iphone:null, ipad:null, android:null}};
 }
 
 /* ---- font loading gate (prevents fallback glyphs baked into export) ---- */
@@ -507,7 +515,7 @@ function renderTo(ctx, dev, slide, locale, forExport){
     roundRectPath(ctx,shotSide,regTop,regW,regH,40); ctx.stroke(); ctx.setLineDash([]);
     ctx.fillStyle=`rgba(${ph},0.5)`; ctx.textAlign="center"; ctx.textBaseline="middle";
     ctx.font=`500 ${Math.round(w*0.034)}px ${fam}`;
-    ctx.fillText(`Drop your ${dev==="iphone"?"iPhone":"iPad"} screenshot`, w/2, regTop+regH/2);
+    ctx.fillText(`Drop your ${dev==="iphone"?"iPhone":dev==="ipad"?"iPad":"Android"} screenshot`, w/2, regTop+regH/2);
     ctx.restore();
   }
 }
@@ -611,7 +619,7 @@ async function exportCurrent(){
   toast(t("saved"));
 }
 async function exportAll(){
-  const devs=["iphone","ipad"].filter(d=>$("#exp-"+d).checked);
+  const devs=DEVS.filter(d=>$("#exp-"+d).checked);
   if(!devs.length) return toast(t("pickDevice"));
   const locs=LOCALES.filter(L=>$("#exp-"+L).checked);
   if(!locs.length) return toast(t("pickLang"));
@@ -644,7 +652,8 @@ function renderSlides(){
       `<span class="n">${String(i+1).padStart(2,"0")}</span>`+
       `<span class="t ${raw?'':'empty'}">${escapeHtml(title)}</span>`+
       `<span class="st"><span class="dot ${s.img.iphone?'on':''}"></span>`+
-      `<span class="dot ${s.img.ipad?'on':''}"></span></span>`+
+      `<span class="dot ${s.img.ipad?'on':''}"></span>`+
+      `<span class="dot ${s.img.android?'on':''}"></span></span>`+
       (state.slides.length>1?`<span class="x" data-x="${i}">\u00d7</span>`:"");
     chip.addEventListener("click",e=>{
       if(e.target.dataset.x!==undefined){
@@ -668,6 +677,7 @@ function syncEditor(){
   $("#titleCount").textContent=tt.title.length; $("#subCount").textContent=tt.subtitle.length;
   setDrop("dropIphone","dsIphone", s.img.iphone);
   setDrop("dropIpad","dsIpad", s.img.ipad);
+  setDrop("dropAndroid","dsAndroid", s.img.android);
   LOCALES.forEach(L=>{
     const has=(s.loc[L].title+s.loc[L].subtitle).trim().length>0;
     $("#locdot-"+L).classList.toggle("has",has);
@@ -745,7 +755,7 @@ function mockupDataURL(w,h){                              // draws a generic to-
   return c.toDataURL("image/png");
 }
 function deckIsEmpty(){
-  return state.slides.every(s => !s.img.iphone && !s.img.ipad &&
+  return state.slides.every(s => DEVS.every(d=>!s.img[d]) &&
     LOCALES.every(L => !(s.loc[L].title+s.loc[L].subtitle).trim()));
 }
 function loadSample(){
@@ -757,8 +767,9 @@ function loadSample(){
   else if(state.slides.length<10){ state.slides.push(slide); state.current=state.slides.length-1; }
   else { return toast(t("deckFull")); }
   const set=(dev,url)=>{ const im=new Image(); im.onload=()=>{ slide.img[dev]=im; syncEditor(); renderSlides(); renderPreview(); }; im.src=url; };
-  set("iphone", mockupDataURL(1080,2280));
-  set("ipad",   mockupDataURL(1640,2180));
+  set("iphone",  mockupDataURL(1080,2280));
+  set("ipad",    mockupDataURL(1640,2180));
+  set("android", mockupDataURL(1080,1920));
   syncEditor(); renderSlides(); renderPreview();
   toast(t("sampleLoaded"));
 }
@@ -772,7 +783,7 @@ function saveProject(){
   const data={ v:1, device:state.device, format:state.format, locale:state.locale, current:state.current,
     locSel:state.locSel, style:state.style,
     slides: state.slides.map(s=>({ loc:s.loc,
-      img:{ iphone:s.img.iphone?imgToDataURL(s.img.iphone):null, ipad:s.img.ipad?imgToDataURL(s.img.ipad):null } })) };
+      img:Object.fromEntries(DEVS.map(d=>[d, s.img[d]?imgToDataURL(s.img[d]):null])) })) };
   download(new Blob([JSON.stringify(data)],{type:"application/json"}), "shotsmith_project.json");
   toast(t("projectSaved"));
 }
@@ -810,7 +821,7 @@ function loadProject(file){
     state.slides=d.slides.map(sd=>{
       const s=newSlide();
       LOCALES.forEach(L=>{ const tt=sd.loc&&sd.loc[L]; if(tt) s.loc[L]={title:tt.title||"", subtitle:tt.subtitle||""}; });
-      ["iphone","ipad"].forEach(dev=>{ const src=sd.img&&sd.img[dev];
+      DEVS.forEach(dev=>{ const src=sd.img&&sd.img[dev];
         if(src){ const im=new Image(); im.onload=()=>{ s.img[dev]=im; syncEditor(); renderSlides(); renderPreview(); }; im.src=src; } });
       return s;
     });
@@ -877,7 +888,7 @@ $("#saveProject").addEventListener("click",saveProject);
 $("#loadProjectBtn").addEventListener("click",()=>$("#loadProjectInput").click());
 $("#loadProjectInput").addEventListener("change",e=>{ loadProject(e.target.files[0]); e.target.value=""; });
 LOCALES.forEach(L=>$("#exp-"+L).addEventListener("change",e=>{ state.locSel[L]=e.target.checked; }));
-wireDrop("dropIphone","iphone"); wireDrop("dropIpad","ipad");
+wireDrop("dropIphone","iphone"); wireDrop("dropIpad","ipad"); wireDrop("dropAndroid","android");
 
 /* ---------- boot ---------- */
 applyI18n(); renderPresets(); syncEditor(); renderSlides(); renderPreview();

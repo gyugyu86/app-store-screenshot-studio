@@ -12,7 +12,8 @@ No accounts. No cloud. No tracking. Everything runs locally in the browser.
 
 ## Features
 
-- **Exact App Store dimensions** — iPhone 6.5″ (1284×2778) and iPad 13″ (2064×2752), pixel-perfect.
+- **Exact store dimensions** — iPhone 6.5″ (1284×2778), iPad 13″ (2064×2752), and Google Play
+  Android phone (1080×1920), pixel-perfect.
 - **No-alpha PNG export** — strips the alpha channel that browsers add by default, so App Store
   Connect won't reject your uploads. (JPEG export also available.)
 - **EN / JA / KR localization** — write title/subtitle per language; Japanese and Korean render with
@@ -63,12 +64,13 @@ python3 -m http.server 8000
 Push this folder to a repo and enable **Settings → Pages → Deploy from branch**.
 Your tool will be live at `https://<user>.github.io/<repo>/`. No build step needed.
 
-## App Store screenshot specs (2026)
+## Store screenshot specs (2026)
 
 | Device class | Required size | Notes |
 |---|---|---|
 | iPhone 6.5″ | 1284×2778 | App Store Connect's iPhone slot (1242×2688 also accepted) |
 | iPad 13″ | 2064×2752 | Required if your app supports iPad (2048×2732 also accepted) |
+| Android phone | 1080×1920 | Google Play (9:16); Play accepts 320–3840px per side, ratio ≤2:1 |
 | Format | PNG or JPEG | **No alpha/transparency**, sRGB, 1–10 per device class |
 
 Specs change as Apple adds devices — verify in App Store Connect before uploading.

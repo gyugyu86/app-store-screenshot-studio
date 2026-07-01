@@ -32,7 +32,8 @@ Live: [https://gyugyu86.github.io/app-store-screenshot-studio/](https://gyugyu86
 
 ## Output contract (must not regress)
 
-- iPhone 6.5″ \= **1284×2778**, iPad 13″ \= **2064×2752**, exact pixels. *(Changed from 6.9″ 1320×2868: App Store Connect's iPhone screenshot slot is the 6.5″ display, which accepts 1242×2688 or 1284×2778 — we output the higher-res 1284×2778. If a listing needs 6.9″ again, add a size toggle rather than swapping.)*  
+- iPhone 6.5″ \= **1284×2778**, iPad 13″ \= **2064×2752**, exact pixels. *(Changed from 6.9″ 1320×2868: App Store Connect's iPhone screenshot slot is the 6.5″ display, which accepts 1242×2688 or 1284×2778 — we output the higher-res 1284×2778. If a listing needs 6.9″ again, add a size toggle rather than swapping.)*
+- Google Play **Android phone \= 1080×1920** (9:16) — a 3rd device. Play accepts sides 320–3840px, ratio ≤2:1; we emit 1080×1920 via the same no-alpha encoder. Per-device loops use the shared `DEVS = Object.keys(DEVICES)`.  
 - PNG output \= **RGB, no alpha**. JPEG is an accepted alternative.  
 - Export naming — single ("Download current"): `{locale}_{device}_{NN}.{ext}` (e.g. `ja_ipad_03.png`). Batch ("Export all"): one `shotsmith_screenshots.zip` whose entries are foldered `{locale}/{device}_{NN}.{ext}` (e.g. `ja/iphone_01.png`) — one folder per locale, drop straight into App Store Connect's per-locale slots.  
 - 1–10 slides per device class.
