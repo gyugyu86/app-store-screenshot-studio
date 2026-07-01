@@ -82,7 +82,8 @@ Japanese uses Noto Sans JP and Korean uses Noto Sans KR automatically.
   nearly fill the area below the text (aspect ratio preserved, headline never covered).
 - **Shadow** — drop shadow under the screenshot.
 - **Device frame** — wraps the screenshot in a generic rounded bezel (off by default). No Apple
-  artwork — just a clean dark frame that makes the shot read like a device; it's included in exports.
+  artwork — just a clean graphite frame that makes the shot read like a device; it's included in
+  exports. When on, a **Frame width** slider adjusts its thickness.
 
 **Project** — **Save** writes your whole deck (per-language text, screenshots, and style) to a
 `shotsmith_project.json` file; **Load** re-opens it later to resume editing or share the deck.
