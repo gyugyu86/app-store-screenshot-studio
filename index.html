@@ -136,6 +136,9 @@
     <button data-dev="iphone" class="on">iPhone <span class="d">1284×2778</span></button>
     <button data-dev="ipad">iPad <span class="d">2064×2752</span></button>
     <button data-dev="android">Android <span class="d">1080×1920</span></button>
+    <button data-dev="iphone67">iPhone 6.7″ <span class="d">1290×2796</span></button>
+    <button data-dev="androidtab">Android tab <span class="d">1600×2560</span></button>
+    <button data-dev="mac">Mac <span class="d">2880×1800</span></button>
   </div>
   <div class="seg" id="fmtSeg">
     <button data-fmt="png" class="on">PNG</button>
@@ -147,6 +150,9 @@
     <label><input type="checkbox" id="exp-iphone" checked> iPhone</label>
     <label><input type="checkbox" id="exp-ipad" checked> iPad</label>
     <label><input type="checkbox" id="exp-android" checked> Android</label>
+    <label><input type="checkbox" id="exp-iphone67" checked> 6.7″</label>
+    <label><input type="checkbox" id="exp-androidtab" checked> A.tab</label>
+    <label><input type="checkbox" id="exp-mac" checked> Mac</label>
     <span class="sep"></span>
     <label><input type="checkbox" id="exp-en"> EN</label>
     <label><input type="checkbox" id="exp-ja"> 日本語</label>
@@ -183,6 +189,18 @@
         </div>
         <div class="drop" id="dropAndroid" data-dev="android">
           <div class="dl">ANDROID SHOT</div><div class="ds" id="dsAndroid">drop / click</div>
+          <input type="file" accept="image/*" hidden>
+        </div>
+        <div class="drop" id="dropIphone67" data-dev="iphone67">
+          <div class="dl">IPHONE 6.7″ SHOT</div><div class="ds" id="dsIphone67">drop / click</div>
+          <input type="file" accept="image/*" hidden>
+        </div>
+        <div class="drop" id="dropAndroidtab" data-dev="androidtab">
+          <div class="dl">ANDROID TAB SHOT</div><div class="ds" id="dsAndroidtab">drop / click</div>
+          <input type="file" accept="image/*" hidden>
+        </div>
+        <div class="drop" id="dropMac" data-dev="mac">
+          <div class="dl">MAC SHOT</div><div class="ds" id="dsMac">drop / click</div>
           <input type="file" accept="image/*" hidden>
         </div>
       </div>
@@ -299,7 +317,10 @@
 const DEVICES = {
   iphone:{w:1284,h:2778,label:"iPhone 6.5\u2033"},
   ipad:{w:2064,h:2752,label:"iPad 13\u2033"},
-  android:{w:1080,h:1920,label:"Android"}
+  android:{w:1080,h:1920,label:"Android"},
+  iphone67:{w:1290,h:2796,label:"iPhone 6.7″"},
+  androidtab:{w:1600,h:2560,label:"Android tablet"},
+  mac:{w:2880,h:1800,label:"Mac"}
 };
 const DEVS = Object.keys(DEVICES);   // ["iphone","ipad","android"] \u2014 single source for per-device loops
 const LOCALES = ["en","ja","ko"];
@@ -562,7 +583,7 @@ function renderTo(ctx, dev, slide, locale, forExport){
     roundRectPath(ctx,shotSide,regTop,regW,regH,40); ctx.stroke(); ctx.setLineDash([]);
     ctx.fillStyle=`rgba(${ph},0.5)`; ctx.textAlign="center"; ctx.textBaseline="middle";
     ctx.font=`500 ${Math.round(w*0.034)}px ${fam}`;
-    ctx.fillText(`Drop your ${dev==="iphone"?"iPhone":dev==="ipad"?"iPad":"Android"} screenshot`, w/2, regTop+regH/2);
+    ctx.fillText(`Drop your ${DEVICES[dev].label} screenshot`, w/2, regTop+regH/2);
     ctx.restore();
   }
 }
@@ -698,9 +719,7 @@ function renderSlides(){
     chip.innerHTML=
       `<span class="n">${String(i+1).padStart(2,"0")}</span>`+
       `<span class="t ${raw?'':'empty'}">${escapeHtml(title)}</span>`+
-      `<span class="st"><span class="dot ${s.img.iphone?'on':''}"></span>`+
-      `<span class="dot ${s.img.ipad?'on':''}"></span>`+
-      `<span class="dot ${s.img.android?'on':''}"></span></span>`+
+      `<span class="st">`+DEVS.map(d=>`<span class="dot ${s.img[d]?'on':''}"></span>`).join('')+`</span>`+
       (state.slides.length>1?`<span class="x" data-x="${i}">\u00d7</span>`:"");
     chip.addEventListener("click",e=>{
       if(e.target.dataset.x!==undefined){
@@ -722,9 +741,7 @@ function syncEditor(){
   const s=state.slides[state.current], tt=s.loc[state.locale];
   $("#title").value=tt.title; $("#subtitle").value=tt.subtitle;
   $("#titleCount").textContent=tt.title.length; $("#subCount").textContent=tt.subtitle.length;
-  setDrop("dropIphone","dsIphone", s.img.iphone);
-  setDrop("dropIpad","dsIpad", s.img.ipad);
-  setDrop("dropAndroid","dsAndroid", s.img.android);
+  DEVS.forEach(d=>{ const C=d[0].toUpperCase()+d.slice(1); setDrop("drop"+C,"ds"+C, s.img[d]); });
   LOCALES.forEach(L=>{
     const has=(s.loc[L].title+s.loc[L].subtitle).trim().length>0;
     $("#locdot-"+L).classList.toggle("has",has);
@@ -812,9 +829,7 @@ function loadSample(){
   else if(state.slides.length<10){ state.slides.push(slide); state.current=state.slides.length-1; }
   else { return toast(t("deckFull")); }
   const set=(dev,url)=>{ const im=new Image(); im.onload=()=>{ slide.img[dev]=im; syncEditor(); renderSlides(); renderPreview(); }; im.src=url; };
-  set("iphone",  mockupDataURL(1080,2280));
-  set("ipad",    mockupDataURL(1640,2180));
-  set("android", mockupDataURL(1080,1920));
+  DEVS.forEach(d=>{ const dv=DEVICES[d], sc=Math.min(1,1200/Math.max(dv.w,dv.h)); set(d, mockupDataURL(Math.round(dv.w*sc),Math.round(dv.h*sc))); });
   syncEditor(); renderSlides(); renderPreview();
   toast(t("sampleLoaded"));
 }
@@ -948,7 +963,7 @@ $("#saveProject").addEventListener("click",saveProject);
 $("#loadProjectBtn").addEventListener("click",()=>$("#loadProjectInput").click());
 $("#loadProjectInput").addEventListener("change",e=>{ loadProject(e.target.files[0]); e.target.value=""; });
 LOCALES.forEach(L=>$("#exp-"+L).addEventListener("change",e=>{ state.locSel[L]=e.target.checked; }));
-wireDrop("dropIphone","iphone"); wireDrop("dropIpad","ipad"); wireDrop("dropAndroid","android");
+DEVS.forEach(d=>wireDrop("drop"+d[0].toUpperCase()+d.slice(1), d));
 
 /* ---------- boot ---------- */
 applyI18n(); renderPresets(); renderFrameColors(); logoUI(); syncEditor(); renderSlides(); renderPreview();
