@@ -139,6 +139,7 @@
     <button data-dev="iphone67">iPhone 6.7″ <span class="d">1290×2796</span></button>
     <button data-dev="androidtab">Android tab <span class="d">1600×2560</span></button>
     <button data-dev="mac">Mac <span class="d">2880×1800</span></button>
+    <button data-dev="feature">Feature <span class="d">1024×500</span></button>
   </div>
   <div class="seg" id="fmtSeg">
     <button data-fmt="png" class="on">PNG</button>
@@ -153,6 +154,7 @@
     <label><input type="checkbox" id="exp-iphone67" checked> 6.7″</label>
     <label><input type="checkbox" id="exp-androidtab" checked> A.tab</label>
     <label><input type="checkbox" id="exp-mac" checked> Mac</label>
+    <label><input type="checkbox" id="exp-feature"> Feat.</label>
     <span class="sep"></span>
     <label><input type="checkbox" id="exp-en"> EN</label>
     <label><input type="checkbox" id="exp-ja"> 日本語</label>
@@ -334,7 +336,8 @@ const DEVICES = {
   android:{w:1080,h:1920,label:"Android"},
   iphone67:{w:1290,h:2796,label:"iPhone 6.7″"},
   androidtab:{w:1600,h:2560,label:"Android tablet"},
-  mac:{w:2880,h:1800,label:"Mac"}
+  mac:{w:2880,h:1800,label:"Mac"},
+  feature:{w:1024,h:500,label:"Feature graphic"}
 };
 const DEVS = Object.keys(DEVICES);   // ["iphone","ipad","android"] \u2014 single source for per-device loops
 const LOCALES = ["en","ja","ko","es","fr","de","pt"];
@@ -533,6 +536,25 @@ function renderTo(ctx, dev, slide, locale, forExport){
   else{ const g=ctx.createLinearGradient(0,0,0,h); g.addColorStop(0,s.bg1); g.addColorStop(1,s.bg2);
         ctx.fillStyle=g; ctx.fillRect(0,0,w,h); }
 
+  if(dev==="feature"){                                 // Google Play feature graphic: centred banner, no screenshot
+    const {title,subtitle}=textFor(slide, locale);
+    const tFam=familyFor(locale,s.fontFamily), sFam=familyFor(locale,s.subFont);
+    const maxW=w*0.86, titlePx=Math.round(h*0.17), subPx=Math.round(h*0.095);
+    const tLH=Math.round(titlePx*1.15), sLH=Math.round(subPx*1.3);
+    ctx.textAlign="center"; ctx.textBaseline="top";
+    ctx.font=`700 ${titlePx}px ${tFam}`; const tLines=title.trim()?wrapLines(ctx,title.trim(),maxW):[];
+    ctx.font=`500 ${subPx}px ${sFam}`;  const sLines=subtitle.trim()?wrapLines(ctx,subtitle.trim(),maxW):[];
+    const logo=logoEl(), logoH=logo?Math.round(h*s.logoSize*2):0, gap=Math.round(h*0.05);
+    const total=(logoH?logoH+gap:0)+tLines.length*tLH+(sLines.length?Math.round(h*0.035)+sLines.length*sLH:0);
+    let y=Math.round((h-total)/2);
+    if(logo){ const lw=Math.round(logoH*logo.naturalWidth/logo.naturalHeight); ctx.drawImage(logo,Math.round((w-lw)/2),y,lw,logoH); y+=logoH+gap; }
+    ctx.fillStyle=s.titleColor; ctx.font=`700 ${titlePx}px ${tFam}`;
+    tLines.forEach(l=>{ ctx.fillText(l,w/2,y); y+=tLH; });
+    if(sLines.length){ y+=Math.round(h*0.035); ctx.fillStyle=s.subColor; ctx.font=`500 ${subPx}px ${sFam}`;
+      sLines.forEach(l=>{ ctx.fillText(l,w/2,y); y+=sLH; }); }
+    return;
+  }
+
   const titleFam=familyFor(locale, s.fontFamily), subFam=familyFor(locale, s.subFont);
   const side=w*0.085, maxW=w-2*side;
   const titlePx=Math.round(w*s.titleSize), subPx=Math.round(w*s.subSize);
@@ -607,7 +629,7 @@ async function renderPreview(){
   const {w,h}=DEVICES[state.device];
   preview.width=w; preview.height=h;
   renderTo(pctx, state.device, state.slides[state.current], state.locale, false);
-  const ok=!!state.slides[state.current].img[state.device];
+  const ok=state.device==="feature" || !!state.slides[state.current].img[state.device];
   $("#badge").innerHTML =
     `<span class="pill"><b>${w} \u00d7 ${h}</b> px</span>`+
     `<span class="pill ${state.format==='jpeg'?'':'ok'}">${state.format.toUpperCase()}</span>`+
@@ -707,7 +729,7 @@ async function exportAll(){
   if(!locs.length) return toast(t("pickLang"));
   const jobs=[];
   locs.forEach(L=>devs.forEach(dev=>state.slides.forEach((s,i)=>{
-    if(s.img[dev]) jobs.push({L,dev,s,i}); })));
+    if(dev==="feature" ? textFor(s,L).title.trim() : s.img[dev]) jobs.push({L,dev,s,i}); })));
   if(!jobs.length) return toast(t("addShotFirst"));
   const locLabel=locs.map(l=>LOC_LABEL[l]).join("/"), files=[];
   for(let k=0;k<jobs.length;k++){
@@ -733,7 +755,7 @@ function renderSlides(){
     chip.innerHTML=
       `<span class="n">${String(i+1).padStart(2,"0")}</span>`+
       `<span class="t ${raw?'':'empty'}">${escapeHtml(title)}</span>`+
-      `<span class="st">`+DEVS.map(d=>`<span class="dot ${s.img[d]?'on':''}"></span>`).join('')+`</span>`+
+      `<span class="st">`+DEVS.filter(d=>d!=="feature").map(d=>`<span class="dot ${s.img[d]?'on':''}"></span>`).join('')+`</span>`+
       (state.slides.length>1?`<span class="x" data-x="${i}">\u00d7</span>`:"");
     chip.addEventListener("click",e=>{
       if(e.target.dataset.x!==undefined){
@@ -763,7 +785,7 @@ function syncEditor(){
   syncLangSel();
 }
 function setDrop(id,dsId,img){
-  const el=$("#"+id), ds=$("#"+dsId);
+  const el=$("#"+id), ds=$("#"+dsId); if(!el) return;
   if(img){ el.classList.add("set"); ds.textContent=`${img.naturalWidth}\u00d7${img.naturalHeight}`; }
   else { el.classList.remove("set"); ds.textContent=t("dropClick"); }
 }
@@ -776,7 +798,7 @@ function loadImageFile(file, dev){
   img.src=URL.createObjectURL(file);
 }
 function wireDrop(id, dev){
-  const el=$("#"+id), input=el.querySelector("input");
+  const el=$("#"+id); if(!el) return; const input=el.querySelector("input");
   el.addEventListener("click",()=>input.click());
   input.addEventListener("change",e=>loadImageFile(e.target.files[0],dev));
   ["dragenter","dragover"].forEach(ev=>el.addEventListener(ev,e=>{e.preventDefault();el.classList.add("over");}));
@@ -843,7 +865,7 @@ function loadSample(){
   else if(state.slides.length<10){ state.slides.push(slide); state.current=state.slides.length-1; }
   else { return toast(t("deckFull")); }
   const set=(dev,url)=>{ const im=new Image(); im.onload=()=>{ slide.img[dev]=im; syncEditor(); renderSlides(); renderPreview(); }; im.src=url; };
-  DEVS.forEach(d=>{ const dv=DEVICES[d], sc=Math.min(1,1200/Math.max(dv.w,dv.h)); set(d, mockupDataURL(Math.round(dv.w*sc),Math.round(dv.h*sc))); });
+  DEVS.filter(d=>d!=="feature").forEach(d=>{ const dv=DEVICES[d], sc=Math.min(1,1200/Math.max(dv.w,dv.h)); set(d, mockupDataURL(Math.round(dv.w*sc),Math.round(dv.h*sc))); });
   syncEditor(); renderSlides(); renderPreview();
   toast(t("sampleLoaded"));
 }
