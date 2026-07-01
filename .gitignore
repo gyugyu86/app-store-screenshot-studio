@@ -1,2 +1,5 @@
 .DS_Store
 Thumbs.db
+
+# Claude Code local tooling (not part of the app)
+.claude/
