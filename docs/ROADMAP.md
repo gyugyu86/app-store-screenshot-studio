@@ -22,6 +22,10 @@ Most paid/SaaS tools lose users to bloat and friction (long onboarding, 45-minut
 - **Project save / load** — "Save" writes the whole deck (per-locale text, per-slide screenshots as base64 PNG data URLs, style, device/format/locale) to one `shotsmith_project.json`; "Load" rehydrates it and re-syncs every control. Lets users resume/version and share a deck.
 - **Optional device frame** — a generic rounded bezel (default off) drawn around the screenshot in canvas; no Apple artwork. Makes shots look like a device (more shareable) and is included in exports.
 - **Google Play (Android phone)** — 1080×1920 added as a third device, reusing the whole pipeline (layout, no-alpha PNG, EN/JA/KR, ZIP `{locale}/android_NN.png`, presets, frame). Widens the tool to Android indie devs.
+- **Compose options** — frame **colour** (graphite/black/silver/white); background can be an **uploaded image** (cover); a **logo/icon** overlays above the title (size slider); title & subtitle take **independent Latin fonts**. All in `state.style` (save/load-safe).
+- **More export sizes** — **iPhone 6.7″** (1290×2796), **Android tablet** (1600×2560), **Mac** (2880×1800, landscape). Device UI is now generated from `DEVS = Object.keys(DEVICES)`, so adding a device is a one-line entry.
+- **More output languages** — **ES / FR / DE / PT** (Latin, no bundled fonts); auto-included in export when authored; the new tabs' UI falls back to English.
+- **Google Play feature graphic** — **1024×500** centred banner (title / subtitle / optional logo, no screenshot); exports on text as `{locale}/feature_NN.png`; include box defaults off.
 
 ## Next up — candidates (promote on demand)
 
@@ -38,10 +42,10 @@ The v2 shortlist (batch ZIP, per-device/-language export, instant start, save/lo
 
 ## Later (v3) — only if users ask
 
-- Google Play: **phone 1080×1920 shipped** ✓ — remaining: feature graphic 1024×500 (landscape banner) \+ tablet (7″/10″) sizes.  
-- Mac App Store sizes (1280×800 / 1440×900 / 2560×1600 / 2880×1800).  
-- 6.7″ iPhone fallback set (1290×2796) toggle.  
-- Logo/icon overlay; per-text font/size/color overrides.
+- Google Play: **all shipped** ✓ — Android phone 1080×1920, Android tablet 1600×2560, feature graphic 1024×500.  
+- Mac App Store: **2880×1800 shipped** ✓ (1280×800 / 1440×900 / 2560×1600 on request).  
+- iPhone **6.7″ 1290×2796 shipped** ✓ (added as a device).  
+- Logo/icon overlay **shipped** ✓; per-text **fonts shipped** ✓ (size/colour were already per-element). Remaining v3: full UI translation for ES/FR/DE/PT (currently English fallback); Chinese output (needs Noto SC/TC).
 
 ## Do NOT build (bloat guardrails)
 

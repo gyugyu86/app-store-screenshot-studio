@@ -28,6 +28,9 @@ No accounts. No cloud. No tracking. Everything runs locally in the browser.
   screenshots needed yet), and one-click style **Presets** give a polished look fast.
 - **Save & resume** — "Save" exports your whole deck (text, screenshots, style) to a JSON file;
   "Load" re-opens it later to keep working or share it.
+- **7 output languages** — EN / JA / KR plus ES / FR / DE / PT, exported per language.
+- **Style options** — gradient / solid / **image** backgrounds, a **logo overlay**, **frame colours**,
+  and **independent title/subtitle fonts**. Plus a Google Play **feature graphic** (1024×500) banner.
 - **Batch ZIP export** — "Export all" bundles every slide × device × language into a single
   `shotsmith_screenshots.zip`, foldered `{language}/{device}_{NN}.png` so each folder maps to App
   Store Connect's per-language slots. iPhone / iPad and EN / JA / KR checkboxes let you export just the
@@ -71,6 +74,10 @@ Your tool will be live at `https://<user>.github.io/<repo>/`. No build step need
 | iPhone 6.5″ | 1284×2778 | App Store Connect's iPhone slot (1242×2688 also accepted) |
 | iPad 13″ | 2064×2752 | Required if your app supports iPad (2048×2732 also accepted) |
 | Android phone | 1080×1920 | Google Play (9:16); Play accepts 320–3840px per side, ratio ≤2:1 |
+| iPhone 6.7″ | 1290×2796 | Optional iOS size |
+| Android tablet | 1600×2560 | Google Play tablet |
+| Mac | 2880×1800 | Mac App Store (landscape) |
+| Feature graphic | 1024×500 | Google Play listing banner — text/logo, no screenshot |
 | Format | PNG or JPEG | **No alpha/transparency**, sRGB, 1–10 per device class |
 
 Specs change as Apple adds devices — verify in App Store Connect before uploading.

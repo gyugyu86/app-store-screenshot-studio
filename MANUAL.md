@@ -67,10 +67,12 @@ font loading — the local server avoids that entirely.)
 **Slides** — thumbnails of each slide (max 10). Click to select; click × to delete; **+ Add slide**
 to add. The three dots show whether an iPhone / iPad / Android screenshot is loaded.
 
-**Background** — Gradient (top + bottom color) or Solid (one color). The **Presets** row applies a
-coordinated background + text-color look in one click (including a clean white/light "Apple" look).
+**Background** — Gradient (top + bottom color), Solid (one color), or **Image** (upload your own,
+drawn cover-fit). The **Presets** row applies a coordinated background + text-color look in one click
+(including a clean white/light "Apple" look).
 
-**Text** — title/subtitle color, the Latin font for English, and title/subtitle sizes.
+**Text** — a **Logo** overlay (upload; sits above the title, size-adjustable), title/subtitle color,
+**independent Latin fonts for title and subtitle** (EN), and title/subtitle sizes.
 Japanese uses Noto Sans JP and Korean uses Noto Sans KR automatically.
 
 **Layout**
