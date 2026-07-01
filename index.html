@@ -51,6 +51,9 @@
   .presets{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:13px}
   .presets button{width:38px;height:26px;border-radius:7px;border:1px solid var(--line);cursor:pointer;padding:0}
   .presets button:hover{border-color:var(--faint)}
+  .fcolors{display:flex;gap:7px}
+  .fcolors button{width:24px;height:24px;border-radius:50%;border:1px solid var(--line);cursor:pointer;padding:0}
+  .fcolors button.on{border-color:var(--accent);box-shadow:0 0 0 2px var(--accent-soft)}
   .projbtns{display:flex;gap:8px}
   .projbtns button{flex:1;justify-content:center}
 
@@ -249,6 +252,8 @@
       <div class="row" id="rowFrameW" style="display:none"><label data-i18n="frameWidth">Frame width</label>
         <input type="range" id="frameWidth" min="8" max="45" value="18">
         <span class="val" id="frameWidthV">1.8%</span></div>
+      <div class="row" id="rowFrameC" style="display:none"><label data-i18n="frameColor">Frame color</label>
+        <div class="fcolors" id="frameColors"></div></div>
     </div>
 
     <div class="sec">
@@ -304,7 +309,7 @@ const STRINGS = {
     latinFont:"Latin font (EN)", fontNote:"JA \u2192 Noto Sans JP, KR \u2192 Noto Sans KR (bundled).",
     titleSize:"Title size", subSize:"Subtitle size",
     layout:"Layout", textArea:"Text area", cornerRadius:"Corner radius", trimTop:"Trim top",
-    screenshot:"Screenshot", shadow:"Shadow", frame:"Device frame", frameWidth:"Frame width",
+    screenshot:"Screenshot", shadow:"Shadow", frame:"Device frame", frameWidth:"Frame width", frameColor:"Frame color",
     downloadCurrent:"Download current", exportAll:"Export all", exportInclude:"Include:", pickDevice:"Pick at least one device", pickLang:"Pick at least one language", screenshotNeeded:"screenshot needed",
     noShot:(d)=>`No ${d} screenshot on this slide`, exporting:"Exporting\u2026", saved:"Saved \u2713",
     addShotFirst:"Add a screenshot first",
@@ -326,7 +331,7 @@ const STRINGS = {
     latinFont:"\u30e9\u30c6\u30f3\u6587\u5b57\u30d5\u30a9\u30f3\u30c8 (EN)", fontNote:"JA \u2192 Noto Sans JP\u3001KR \u2192 Noto Sans KR\uff08\u540c\u68b1\uff09\u3002",
     titleSize:"\u30bf\u30a4\u30c8\u30eb\u30b5\u30a4\u30ba", subSize:"\u30b5\u30d6\u30bf\u30a4\u30c8\u30eb\u30b5\u30a4\u30ba",
     layout:"\u30ec\u30a4\u30a2\u30a6\u30c8", textArea:"\u30c6\u30ad\u30b9\u30c8\u9818\u57df", cornerRadius:"\u89d2\u4e38", trimTop:"\u4e0a\u90e8\u30c8\u30ea\u30df\u30f3\u30b0",
-    screenshot:"\u30b9\u30af\u30ea\u30fc\u30f3\u30b7\u30e7\u30c3\u30c8", shadow:"\u5f71", frame:"\u30c7\u30d0\u30a4\u30b9\u30d5\u30ec\u30fc\u30e0", frameWidth:"\u30d5\u30ec\u30fc\u30e0\u5e45",
+    screenshot:"\u30b9\u30af\u30ea\u30fc\u30f3\u30b7\u30e7\u30c3\u30c8", shadow:"\u5f71", frame:"\u30c7\u30d0\u30a4\u30b9\u30d5\u30ec\u30fc\u30e0", frameWidth:"\u30d5\u30ec\u30fc\u30e0\u5e45", frameColor:"\u30d5\u30ec\u30fc\u30e0\u8272",
     downloadCurrent:"\u73fe\u5728\u306e\u3082\u306e\u3092\u4fdd\u5b58", exportAll:"\u3059\u3079\u3066\u66f8\u304d\u51fa\u3057", exportInclude:"\u5bfe\u8c61:", pickDevice:"\u30c7\u30d0\u30a4\u30b9\u30921\u3064\u4ee5\u4e0a\u9078\u3093\u3067\u304f\u3060\u3055\u3044", pickLang:"\u8a00\u8a9e\u30921\u3064\u4ee5\u4e0a\u9078\u3093\u3067\u304f\u3060\u3055\u3044", screenshotNeeded:"\u8981\u30b9\u30af\u30ea\u30fc\u30f3\u30b7\u30e7\u30c3\u30c8",
     noShot:(d)=>`\u3053\u306e\u30b9\u30e9\u30a4\u30c9\u306b${d}\u30b9\u30af\u30ea\u30fc\u30f3\u30b7\u30e7\u30c3\u30c8\u304c\u3042\u308a\u307e\u305b\u3093`, exporting:"\u66f8\u304d\u51fa\u3057\u4e2d\u2026", saved:"\u4fdd\u5b58\u3057\u307e\u3057\u305f \u2713",
     addShotFirst:"\u5148\u306b\u30b9\u30af\u30ea\u30fc\u30f3\u30b7\u30e7\u30c3\u30c8\u3092\u8ffd\u52a0\u3057\u3066\u304f\u3060\u3055\u3044",
@@ -348,7 +353,7 @@ const STRINGS = {
     latinFont:"\ub77c\ud2f4 \ud3f0\ud2b8 (EN)", fontNote:"JA \u2192 Noto Sans JP, KR \u2192 Noto Sans KR \uc790\ub3d9 \uc801\uc6a9(\ubc88\ub4e4 \ud3f0\ud2b8).",
     titleSize:"\ud0c0\uc774\ud2c0 \ud06c\uae30", subSize:"\uc11c\ube0c\ud0c0\uc774\ud2c0 \ud06c\uae30",
     layout:"\ub808\uc774\uc544\uc6c3", textArea:"\ud14d\uc2a4\ud2b8 \uc601\uc5ed", cornerRadius:"\ubaa8\uc11c\ub9ac \ub465\uae00\uae30", trimTop:"\uc0c1\ub2e8 \uc790\ub974\uae30",
-    screenshot:"\uc2a4\ud06c\ub9b0\uc0f7", shadow:"\uadf8\ub9bc\uc790", frame:"\uae30\uae30 \ud504\ub808\uc784", frameWidth:"\ud504\ub808\uc784 \ub450\uaed8",
+    screenshot:"\uc2a4\ud06c\ub9b0\uc0f7", shadow:"\uadf8\ub9bc\uc790", frame:"\uae30\uae30 \ud504\ub808\uc784", frameWidth:"\ud504\ub808\uc784 \ub450\uaed8", frameColor:"\ud504\ub808\uc784 \uc0c9",
     downloadCurrent:"\ud604\uc7ac \ud56d\ubaa9 \uc800\uc7a5", exportAll:"\uc804\uccb4 \ub0b4\ubcf4\ub0b4\uae30", exportInclude:"\ub300\uc0c1:", pickDevice:"\uae30\uae30\ub97c \ud558\ub098 \uc774\uc0c1 \uc120\ud0dd\ud558\uc138\uc694", pickLang:"\uc5b8\uc5b4\ub97c \ud558\ub098 \uc774\uc0c1 \uc120\ud0dd\ud558\uc138\uc694", screenshotNeeded:"\uc2a4\ud06c\ub9b0\uc0f7 \ud544\uc694",
     noShot:(d)=>`\uc774 \uc2ac\ub77c\uc774\ub4dc\uc5d0 ${d} \uc2a4\ud06c\ub9b0\uc0f7\uc774 \uc5c6\uc2b5\ub2c8\ub2e4`, exporting:"\ub0b4\ubcf4\ub0b4\ub294 \uc911\u2026", saved:"\uc800\uc7a5\ub428 \u2713",
     addShotFirst:"\uba3c\uc800 \uc2a4\ud06c\ub9b0\uc0f7\uc744 \ucd94\uac00\ud558\uc138\uc694",
@@ -378,7 +383,7 @@ const state = {
     titleColor:"#FFFFFF", subColor:"#C9D8E8",
     fontFamily:'-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif',
     titleSize:0.058, subSize:0.034,
-    textZone:0.26, corner:0.06, shadow:true, fill:false, trimTop:0, frame:false, frameW:0.018
+    textZone:0.26, corner:0.06, shadow:true, fill:false, trimTop:0, frame:false, frameW:0.018, frameColor:"#1C1C1E"
   }
 };
 function newSlide(){
@@ -502,9 +507,10 @@ function renderTo(ctx, dev, slide, locale, forExport){
       roundRectPath(ctx,ox,oy,ow,oh,orad); ctx.fillStyle="#000"; ctx.fill(); ctx.restore();
     }
     if(s.frame){
-      roundRectPath(ctx,ox,oy,ow,oh,orad); ctx.fillStyle="#1C1C1E"; ctx.fill();     // refined graphite bezel
+      roundRectPath(ctx,ox,oy,ow,oh,orad); ctx.fillStyle=s.frameColor; ctx.fill();
+      const fe=lum(s.frameColor)>0.6?"0,0,0":"255,255,255";                          // edge contrasts with the frame colour
       ctx.save(); roundRectPath(ctx,ox,oy,ow,oh,orad); ctx.lineWidth=Math.max(2,Math.round(bez*0.14));
-      ctx.strokeStyle="rgba(255,255,255,0.10)"; ctx.stroke(); ctx.restore();        // subtle inner edge so it reads on dark bgs
+      ctx.strokeStyle=`rgba(${fe},0.12)`; ctx.stroke(); ctx.restore();
     }
     ctx.save(); roundRectPath(ctx,px,py,nw,nh,rad); ctx.clip();
     ctx.drawImage(img, 0, sy, sw, sh, px, py, nw, nh); ctx.restore();
@@ -805,7 +811,7 @@ function syncControls(){                                  // push full state.sty
   sl("corner","cornerV",Math.round(s.corner*100),v=>v+"%");
   sl("trimTop","trimTopV",Math.round(s.trimTop*100),v=>v+"%");
   sl("frameWidth","frameWidthV",Math.round(s.frameW*1000),v=>(v/10).toFixed(1)+"%");
-  $("#rowFrameW").style.display=s.frame?"flex":"none";
+  $("#rowFrameW").style.display=s.frame?"flex":"none"; $("#rowFrameC").style.display=s.frame?"flex":"none"; renderFrameColors();
 }
 function loadProject(file){
   if(!file) return;
@@ -851,7 +857,7 @@ seg("bgSeg","bg",v=>{state.style.bgType=v;
   $("#rowSolid").style.display=v==="solid"?"flex":"none"; renderPreview();});
 seg("shadowSeg","sh",v=>{state.style.shadow=v==="1";renderPreview();});
 seg("fillSeg","fill",v=>{state.style.fill=v==="1";renderPreview();});
-seg("frameSeg","fr",v=>{state.style.frame=v==="1"; $("#rowFrameW").style.display=state.style.frame?"flex":"none"; renderPreview();});
+seg("frameSeg","fr",v=>{state.style.frame=v==="1"; const _d=state.style.frame?"flex":"none"; $("#rowFrameW").style.display=_d; $("#rowFrameC").style.display=_d; renderPreview();});
 
 $("#title").addEventListener("input",e=>{state.slides[state.current].loc[state.locale].title=e.target.value;
   $("#titleCount").textContent=e.target.value.length; renderSlides(); renderPreview();});
@@ -873,6 +879,16 @@ slider("textZone","textZoneV",v=>v+"%",v=>state.style.textZone=v/100);
 slider("corner","cornerV",v=>v+"%",v=>state.style.corner=v/100);
 slider("trimTop","trimTopV",v=>v+"%",v=>state.style.trimTop=v/100);
 slider("frameWidth","frameWidthV",v=>(v/10).toFixed(1)+"%",v=>state.style.frameW=v/1000);
+const FRAME_COLORS=["#1C1C1E","#0B0B0D","#C7C9CC","#F2F3F5"];  // graphite / black / silver / white
+function renderFrameColors(){
+  const box=$("#frameColors"); box.innerHTML="";
+  FRAME_COLORS.forEach(c=>{
+    const b=document.createElement("button"); b.style.background=c;
+    b.classList.toggle("on", c===state.style.frameColor);
+    b.addEventListener("click",()=>{ state.style.frameColor=c; renderFrameColors(); renderPreview(); });
+    box.appendChild(b);
+  });
+}
 
 $("#addSlide").addEventListener("click",()=>{
   if(state.slides.length>=10)return; state.slides.push(newSlide());
@@ -891,7 +907,7 @@ LOCALES.forEach(L=>$("#exp-"+L).addEventListener("change",e=>{ state.locSel[L]=e
 wireDrop("dropIphone","iphone"); wireDrop("dropIpad","ipad"); wireDrop("dropAndroid","android");
 
 /* ---------- boot ---------- */
-applyI18n(); renderPresets(); syncEditor(); renderSlides(); renderPreview();
+applyI18n(); renderPresets(); renderFrameColors(); syncEditor(); renderSlides(); renderPreview();
 fontsReady.then(renderPreview);
 </script>
 </body>
