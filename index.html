@@ -437,6 +437,7 @@ function roundRectPath(ctx,x,y,w,h,r){
   ctx.moveTo(x+r,y);ctx.arcTo(x+w,y,x+w,y+h,r);ctx.arcTo(x+w,y+h,x,y+h,r);
   ctx.arcTo(x,y+h,x,y,r);ctx.arcTo(x,y,x+w,y,r);ctx.closePath();
 }
+function lum(hex){ const h=hex.replace("#",""); const r=parseInt(h.slice(0,2),16),g=parseInt(h.slice(2,4),16),b=parseInt(h.slice(4,6),16); return (0.299*r+0.587*g+0.114*b)/255; }
 
 function renderTo(ctx, dev, slide, locale, forExport){
   const {w,h}=DEVICES[dev], s=state.style;
@@ -483,9 +484,11 @@ function renderTo(ctx, dev, slide, locale, forExport){
     ctx.save(); roundRectPath(ctx,px,py,nw,nh,rad); ctx.clip();
     ctx.drawImage(img, 0, sy, sw, sh, px, py, nw, nh); ctx.restore();
   } else if(!forExport){
-    ctx.save(); ctx.setLineDash([14,12]); ctx.lineWidth=3; ctx.strokeStyle="rgba(255,255,255,0.28)";
+    const bgL = s.bgType==="solid" ? lum(s.bgSolid) : (lum(s.bg1)+lum(s.bg2))/2;
+    const ph = bgL>0.6 ? "0,0,0" : "255,255,255";   // placeholder contrasts with the background
+    ctx.save(); ctx.setLineDash([14,12]); ctx.lineWidth=3; ctx.strokeStyle=`rgba(${ph},0.28)`;
     roundRectPath(ctx,shotSide,regTop,regW,regH,40); ctx.stroke(); ctx.setLineDash([]);
-    ctx.fillStyle="rgba(255,255,255,0.5)"; ctx.textAlign="center"; ctx.textBaseline="middle";
+    ctx.fillStyle=`rgba(${ph},0.5)`; ctx.textAlign="center"; ctx.textBaseline="middle";
     ctx.font=`500 ${Math.round(w*0.034)}px ${fam}`;
     ctx.fillText(`Drop your ${dev==="iphone"?"iPhone":"iPad"} screenshot`, w/2, regTop+regH/2);
     ctx.restore();
