@@ -52,7 +52,8 @@ font loading — the local server avoids that entirely.)
 - **PNG / JPEG** — output format. PNG is alpha-free and best for text; JPEG is also accepted.
 - **Download current** — saves just the slide/device/language you're viewing.
 - **Export all** — bundles every slide × device × language into a single `shotsmith_screenshots.zip`.
-  Use the **iPhone / iPad** checkboxes beside it to include only the device class(es) you need.
+  Use the **iPhone / iPad** and **EN / 日本語 / 한국어** checkboxes beside it to include only the
+  device class(es) and language(s) you need.
 
 **Left panel — Slide content**
 - **EN / 日本語 / 한국어 tabs** — pick the language you're editing. The whole interface and the
@@ -100,9 +101,11 @@ Japanese uses Noto Sans JP and Korean uses Noto Sans KR automatically.
 3. Screenshots are shared — you don't re-upload them per language.
 4. If you leave a Japanese or Korean field empty, that screenshot falls back to the English text,
    so a half-translated set still exports complete images.
-5. **Export all** outputs only the languages that have text (English is always included), as one
-   `shotsmith_screenshots.zip` foldered by language — `en/iphone_01.png`, `ja/iphone_01.png`,
-   `ko/ipad_02.png`, and so on.
+5. **Export all** outputs the languages ticked in the **EN / 日本語 / 한국어** boxes. By default those
+   auto-follow the languages you've actually written text in — so a Japanese-only deck exports just
+   `ja/…` and won't emit empty English files. You can tick a language manually to export it too (it
+   uses the English fallback for any empty fields), or untick one you don't want. Result is one
+   `shotsmith_screenshots.zip` foldered by language: `ja/iphone_01.png`, `ko/ipad_02.png`, and so on.
 
 In App Store Connect, each language has its own screenshot slots — unzip and drop each `xx/…`
 folder's files into the matching language.
@@ -117,7 +120,8 @@ folder's files into the matching language.
 - **Export all:** the full matrix as a single `shotsmith_screenshots.zip` (one download, no
   multi-download prompt), with files foldered by language: `{language}/{device}_{NN}.{ext}` —
   e.g. `ja/iphone_01.png`. Tick only **iPhone** or only **iPad** beside the button to export a
-  single device class (e.g. when you're shipping iPhone-only) — the other one is left out entirely.
+  single device class (e.g. when you're shipping iPhone-only); the **EN / 日本語 / 한국어** boxes do the
+  same for languages (default: the ones you authored). Unchecked device/language pairs are left out entirely.
 
 ---
 

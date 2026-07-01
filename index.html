@@ -46,6 +46,7 @@
   .expsel{display:inline-flex;align-items:center;gap:11px;font-size:12px;color:var(--muted)}
   .expsel label{display:inline-flex;align-items:center;gap:5px;cursor:pointer;user-select:none;color:var(--ink)}
   .expsel input{accent-color:var(--accent);cursor:pointer;width:15px;height:15px;margin:0}
+  .expsel .sep{width:1px;height:15px;background:var(--line);margin:0 1px}
 
   main{flex:1;display:grid;grid-template-columns:340px 1fr;min-height:0}
   .rail{border-right:1px solid var(--line);background:var(--panel);overflow-y:auto;padding:16px}
@@ -134,6 +135,10 @@
     <span data-i18n="exportInclude">Include:</span>
     <label><input type="checkbox" id="exp-iphone" checked> iPhone</label>
     <label><input type="checkbox" id="exp-ipad" checked> iPad</label>
+    <span class="sep"></span>
+    <label><input type="checkbox" id="exp-en"> EN</label>
+    <label><input type="checkbox" id="exp-ja"> 日本語</label>
+    <label><input type="checkbox" id="exp-ko"> 한국어</label>
   </div>
   <button class="btn primary" id="exportAll" data-i18n="exportAll">Export all</button>
 </header>
@@ -268,7 +273,7 @@ const STRINGS = {
     titleSize:"Title size", subSize:"Subtitle size",
     layout:"Layout", textArea:"Text area", cornerRadius:"Corner radius", trimTop:"Trim top",
     screenshot:"Screenshot", shadow:"Shadow",
-    downloadCurrent:"Download current", exportAll:"Export all", exportInclude:"Include:", pickDevice:"Pick at least one device", screenshotNeeded:"screenshot needed",
+    downloadCurrent:"Download current", exportAll:"Export all", exportInclude:"Include:", pickDevice:"Pick at least one device", pickLang:"Pick at least one language", screenshotNeeded:"screenshot needed",
     noShot:(d)=>`No ${d} screenshot on this slide`, exporting:"Exporting\u2026", saved:"Saved \u2713",
     addShotFirst:"Add a screenshot first",
     exportingN:(n,l)=>`Exporting\u2026 ${n} files (${l})`, doneN:(n)=>`Done \u2014 ${n} files saved \u2713`,
@@ -288,7 +293,7 @@ const STRINGS = {
     titleSize:"\u30bf\u30a4\u30c8\u30eb\u30b5\u30a4\u30ba", subSize:"\u30b5\u30d6\u30bf\u30a4\u30c8\u30eb\u30b5\u30a4\u30ba",
     layout:"\u30ec\u30a4\u30a2\u30a6\u30c8", textArea:"\u30c6\u30ad\u30b9\u30c8\u9818\u57df", cornerRadius:"\u89d2\u4e38", trimTop:"\u4e0a\u90e8\u30c8\u30ea\u30df\u30f3\u30b0",
     screenshot:"\u30b9\u30af\u30ea\u30fc\u30f3\u30b7\u30e7\u30c3\u30c8", shadow:"\u5f71",
-    downloadCurrent:"\u73fe\u5728\u306e\u3082\u306e\u3092\u4fdd\u5b58", exportAll:"\u3059\u3079\u3066\u66f8\u304d\u51fa\u3057", exportInclude:"\u5bfe\u8c61:", pickDevice:"\u30c7\u30d0\u30a4\u30b9\u30921\u3064\u4ee5\u4e0a\u9078\u3093\u3067\u304f\u3060\u3055\u3044", screenshotNeeded:"\u8981\u30b9\u30af\u30ea\u30fc\u30f3\u30b7\u30e7\u30c3\u30c8",
+    downloadCurrent:"\u73fe\u5728\u306e\u3082\u306e\u3092\u4fdd\u5b58", exportAll:"\u3059\u3079\u3066\u66f8\u304d\u51fa\u3057", exportInclude:"\u5bfe\u8c61:", pickDevice:"\u30c7\u30d0\u30a4\u30b9\u30921\u3064\u4ee5\u4e0a\u9078\u3093\u3067\u304f\u3060\u3055\u3044", pickLang:"\u8a00\u8a9e\u30921\u3064\u4ee5\u4e0a\u9078\u3093\u3067\u304f\u3060\u3055\u3044", screenshotNeeded:"\u8981\u30b9\u30af\u30ea\u30fc\u30f3\u30b7\u30e7\u30c3\u30c8",
     noShot:(d)=>`\u3053\u306e\u30b9\u30e9\u30a4\u30c9\u306b${d}\u30b9\u30af\u30ea\u30fc\u30f3\u30b7\u30e7\u30c3\u30c8\u304c\u3042\u308a\u307e\u305b\u3093`, exporting:"\u66f8\u304d\u51fa\u3057\u4e2d\u2026", saved:"\u4fdd\u5b58\u3057\u307e\u3057\u305f \u2713",
     addShotFirst:"\u5148\u306b\u30b9\u30af\u30ea\u30fc\u30f3\u30b7\u30e7\u30c3\u30c8\u3092\u8ffd\u52a0\u3057\u3066\u304f\u3060\u3055\u3044",
     exportingN:(n,l)=>`\u66f8\u304d\u51fa\u3057\u4e2d\u2026 ${n}\u679a (${l})`, doneN:(n)=>`\u5b8c\u4e86 \u2014 ${n}\u679a\u3092\u4fdd\u5b58 \u2713`,
@@ -308,7 +313,7 @@ const STRINGS = {
     titleSize:"\ud0c0\uc774\ud2c0 \ud06c\uae30", subSize:"\uc11c\ube0c\ud0c0\uc774\ud2c0 \ud06c\uae30",
     layout:"\ub808\uc774\uc544\uc6c3", textArea:"\ud14d\uc2a4\ud2b8 \uc601\uc5ed", cornerRadius:"\ubaa8\uc11c\ub9ac \ub465\uae00\uae30", trimTop:"\uc0c1\ub2e8 \uc790\ub974\uae30",
     screenshot:"\uc2a4\ud06c\ub9b0\uc0f7", shadow:"\uadf8\ub9bc\uc790",
-    downloadCurrent:"\ud604\uc7ac \ud56d\ubaa9 \uc800\uc7a5", exportAll:"\uc804\uccb4 \ub0b4\ubcf4\ub0b4\uae30", exportInclude:"\ub300\uc0c1:", pickDevice:"\uae30\uae30\ub97c \ud558\ub098 \uc774\uc0c1 \uc120\ud0dd\ud558\uc138\uc694", screenshotNeeded:"\uc2a4\ud06c\ub9b0\uc0f7 \ud544\uc694",
+    downloadCurrent:"\ud604\uc7ac \ud56d\ubaa9 \uc800\uc7a5", exportAll:"\uc804\uccb4 \ub0b4\ubcf4\ub0b4\uae30", exportInclude:"\ub300\uc0c1:", pickDevice:"\uae30\uae30\ub97c \ud558\ub098 \uc774\uc0c1 \uc120\ud0dd\ud558\uc138\uc694", pickLang:"\uc5b8\uc5b4\ub97c \ud558\ub098 \uc774\uc0c1 \uc120\ud0dd\ud558\uc138\uc694", screenshotNeeded:"\uc2a4\ud06c\ub9b0\uc0f7 \ud544\uc694",
     noShot:(d)=>`\uc774 \uc2ac\ub77c\uc774\ub4dc\uc5d0 ${d} \uc2a4\ud06c\ub9b0\uc0f7\uc774 \uc5c6\uc2b5\ub2c8\ub2e4`, exporting:"\ub0b4\ubcf4\ub0b4\ub294 \uc911\u2026", saved:"\uc800\uc7a5\ub428 \u2713",
     addShotFirst:"\uba3c\uc800 \uc2a4\ud06c\ub9b0\uc0f7\uc744 \ucd94\uac00\ud558\uc138\uc694",
     exportingN:(n,l)=>`\ub0b4\ubcf4\ub0b4\ub294 \uc911\u2026 ${n}\uc7a5 (${l})`, doneN:(n)=>`\uc644\ub8cc \u2014 ${n}\uc7a5 \uc800\uc7a5 \u2713`,
@@ -328,6 +333,7 @@ function applyI18n(){
 
 const state = {
   device:"iphone", format:"png", current:0, locale:"en",
+  locSel:{en:null, ja:null, ko:null},   // export language selection: null=auto(follow content), bool=manual
   slides:[ newSlide() ],
   style:{
     bgType:"gradient", bg1:"#0E2A47", bg2:"#1C5C8C", bgSolid:"#111827",
@@ -364,12 +370,16 @@ function textFor(slide, locale){
   const tt=slide.loc[locale], en=slide.loc.en;
   return { title:(tt.title.trim()||en.title), subtitle:(tt.subtitle.trim()||en.subtitle) };
 }
-function localesToExport(){
-  const set=new Set(["en"]);
-  state.slides.forEach(s=>LOCALES.forEach(L=>{
-    if((s.loc[L].title+s.loc[L].subtitle).trim()) set.add(L);
-  }));
-  return LOCALES.filter(L=>set.has(L));
+function langHasContent(L){
+  return state.slides.some(s => (s.loc[L].title + s.loc[L].subtitle).trim().length > 0);
+}
+function langChecked(L){                                 // effective export selection for a locale
+  if(state.locSel[L] !== null) return state.locSel[L];   // user toggled it → honor the manual choice
+  if(langHasContent(L)) return true;                     // auto: languages you actually authored
+  return L === "en" && !LOCALES.some(langHasContent);    // baseline: EN when nothing is authored yet
+}
+function syncLangSel(){                                   // reflect the auto/manual state into the checkboxes
+  LOCALES.forEach(L=>{ const c=$("#exp-"+L); if(c) c.checked = langChecked(L); });
 }
 
 function wrapLines(ctx, text, maxW){
@@ -558,7 +568,9 @@ async function exportCurrent(){
 async function exportAll(){
   const devs=["iphone","ipad"].filter(d=>$("#exp-"+d).checked);
   if(!devs.length) return toast(t("pickDevice"));
-  const locs=localesToExport(), jobs=[];
+  const locs=LOCALES.filter(L=>$("#exp-"+L).checked);
+  if(!locs.length) return toast(t("pickLang"));
+  const jobs=[];
   locs.forEach(L=>devs.forEach(dev=>state.slides.forEach((s,i)=>{
     if(s.img[dev]) jobs.push({L,dev,s,i}); })));
   if(!jobs.length) return toast(t("addShotFirst"));
@@ -600,6 +612,7 @@ function renderSlides(){
     list.appendChild(chip);
   });
   $("#addSlide").disabled = state.slides.length>=10;
+  syncLangSel();
 }
 function escapeHtml(s){return s.replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));}
 
@@ -614,6 +627,7 @@ function syncEditor(){
     const has=(s.loc[L].title+s.loc[L].subtitle).trim().length>0;
     $("#locdot-"+L).classList.toggle("has",has);
   });
+  syncLangSel();
 }
 function setDrop(id,dsId,img){
   const el=$("#"+id), ds=$("#"+dsId);
@@ -686,6 +700,7 @@ $("#next").addEventListener("click",()=>{state.current=(state.current+1)%state.s
   syncEditor();renderSlides();renderPreview();});
 $("#exportOne").addEventListener("click",exportCurrent);
 $("#exportAll").addEventListener("click",exportAll);
+LOCALES.forEach(L=>$("#exp-"+L).addEventListener("change",e=>{ state.locSel[L]=e.target.checked; }));
 wireDrop("dropIphone","iphone"); wireDrop("dropIpad","ipad");
 
 /* ---------- boot ---------- */

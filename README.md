@@ -24,7 +24,8 @@ No accounts. No cloud. No tracking. Everything runs locally in the browser.
 - **Up to 10 slides**, one screenshot set per device.
 - **Batch ZIP export** — "Export all" bundles every slide × device × language into a single
   `shotsmith_screenshots.zip`, foldered `{language}/{device}_{NN}.png` so each folder maps to App
-  Store Connect's per-language slots. iPhone / iPad checkboxes let you export just one device class.
+  Store Connect's per-language slots. iPhone / iPad and EN / JA / KR checkboxes let you export just the
+  device classes and languages you need (languages default to the ones you actually wrote text in).
 
 ## Usage
 

@@ -17,6 +17,7 @@ Most paid/SaaS tools lose users to bloat and friction (long onboarding, 45-minut
 - **Trim top** to remove the simulator status bar.  
 - **Batch ZIP export** — "Export all" bundles every slide × device × locale into a single `shotsmith_screenshots.zip`, foldered `{locale}/{device}_{NN}.{ext}` (e.g. `ja/iphone_01.png`) for App Store Connect's per-locale slots.
 - **Per-device export selection** — iPhone / iPad checkboxes on "Export all" so an iPhone-only (or iPad-only) listing doesn't produce the other class's files.
+- **Per-language export selection** — EN / 日本語 / 한국어 checkboxes on "Export all" that auto-follow the languages you've authored (overridable), replacing the old "EN always exported" rule, so a single-language deck doesn't emit empty files for the others.
 
 ## Next up (v2) — high ROI, in priority order
 
@@ -27,6 +28,7 @@ Most paid/SaaS tools lose users to bloat and friction (long onboarding, 45-minut
 
 - **2026-06-19 — Batch ZIP via hand-rolled STORE writer, not JSZip.** Shipped v2 #1. Exported PNG/JPEG are already compressed, so the archive stores entries uncompressed (STORE method); DEFLATE would yield ~0 size gain while forcing a ~90–100KB inlined library, breaking the "single file, no dependencies" principle. The small `makeZip()` reuses the PNG encoder's existing `crc32()`. Standard ZIP (no ZIP64) — adequate for realistic export sizes. Each image still flows through `exportBlob()`, so the font-load gate and the no-alpha RGB PNG encoder are preserved. Validated with `unzip -t` (CRC/integrity) and byte-equality round-trip.
 - **2026-06-22 — iPhone export size 1320×2868 (6.9″) → 1284×2778 (6.5″).** Real App Store Connect rejection: the project's iPhone screenshot slot is the **6.5″ display**, which accepts 1242×2688 or 1284×2778, not the 6.9″ 1320×2868 we were emitting (iPad 2064×2752 was unaffected). Switched the single iPhone target to the higher-res **1284×2778**. Aspect (~19.5:9) is nearly identical, so the top-text layout is unchanged. Kept as a single size rather than a 6.9″/6.5″ toggle to stay minimal; revisit with a toggle only if a listing needs both slots.
+- **2026-06-22 — Export scope = per-device + per-language include checkboxes.** "Export all" now has iPhone/iPad and EN/日本語/한국어 checkboxes. Devices default ON; **languages auto-follow authored content** (`langChecked()`: manual override wins, else checked iff that locale has text, with EN as the baseline when nothing is authored). This replaced `localesToExport()`'s hard-coded "EN always exported", which produced empty English files for single-language decks. Total files = checked-locales × checked-devices × slides-with-that-device-image; the per-slide image guard still applies.
 
 ## Later (v3) — only if users ask
 
