@@ -68,7 +68,7 @@ font loading — the local server avoids that entirely.)
 to add. The two dots show whether an iPhone / iPad screenshot is loaded.
 
 **Background** — Gradient (top + bottom color) or Solid (one color). The **Presets** row applies a
-coordinated background + text-color look in one click.
+coordinated background + text-color look in one click (including a clean white/light "Apple" look).
 
 **Text** — title/subtitle color, the Latin font for English, and title/subtitle sizes.
 Japanese uses Noto Sans JP and Korean uses Noto Sans KR automatically.
@@ -81,6 +81,9 @@ Japanese uses Noto Sans JP and Korean uses Noto Sans KR automatically.
 - **Screenshot: Fit / Fill** — *Fit* keeps a margin around the screenshot; *Fill* enlarges it to
   nearly fill the area below the text (aspect ratio preserved, headline never covered).
 - **Shadow** — drop shadow under the screenshot.
+
+**Project** — **Save** writes your whole deck (per-language text, screenshots, and style) to a
+`shotsmith_project.json` file; **Load** re-opens it later to resume editing or share the deck.
 
 ---
 

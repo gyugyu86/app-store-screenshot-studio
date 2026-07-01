@@ -51,6 +51,8 @@
   .presets{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:13px}
   .presets button{width:38px;height:26px;border-radius:7px;border:1px solid var(--line);cursor:pointer;padding:0}
   .presets button:hover{border-color:var(--faint)}
+  .projbtns{display:flex;gap:8px}
+  .projbtns button{flex:1;justify-content:center}
 
   main{flex:1;display:grid;grid-template-columns:340px 1fr;min-height:0}
   .rail{border-right:1px solid var(--line);background:var(--panel);overflow-y:auto;padding:16px}
@@ -237,6 +239,16 @@
       <div class="row"><label data-i18n="shadow">Shadow</label>
         <div class="seg" id="shadowSeg"><button data-sh="1" class="on">On</button><button data-sh="0">Off</button></div></div>
     </div>
+
+    <div class="sec">
+      <h3 data-i18n="project">Project</h3>
+      <div class="projbtns">
+        <button class="btn" id="saveProject" data-i18n="saveProject">Save</button>
+        <button class="btn" id="loadProjectBtn" data-i18n="loadProject">Load</button>
+      </div>
+      <input type="file" id="loadProjectInput" accept="application/json,.json" hidden>
+      <p class="imgnote" data-i18n="projectNote">Saves your whole deck (text, screenshots, style) to a .json file you can re-open later.</p>
+    </div>
   </aside>
 
   <section class="stage">
@@ -284,6 +296,7 @@ const STRINGS = {
     noShot:(d)=>`No ${d} screenshot on this slide`, exporting:"Exporting\u2026", saved:"Saved \u2713",
     addShotFirst:"Add a screenshot first",
     loadSample:"Try a sample", presets:"Presets", sampleLoaded:"Sample loaded — tweak or export it", deckFull:"Remove a slide first (max 10)",
+    project:"Project", saveProject:"Save", loadProject:"Load", projectNote:"Saves your whole deck (text, screenshots, style) to a .json file you can re-open later.", projectSaved:"Project saved ✓", projectLoaded:"Project loaded ✓", projectError:"Couldn't read that project file",
     exportingN:(n,l)=>`Exporting\u2026 ${n} files (${l})`, doneN:(n)=>`Done \u2014 ${n} files saved \u2713`,
     exportingZip:(i,n,l)=>`Exporting\u2026 ${i}/${n} (${l})`, zipSaved:(n)=>`ZIP saved \u2014 ${n} files \u2713`
   },
@@ -305,6 +318,7 @@ const STRINGS = {
     noShot:(d)=>`\u3053\u306e\u30b9\u30e9\u30a4\u30c9\u306b${d}\u30b9\u30af\u30ea\u30fc\u30f3\u30b7\u30e7\u30c3\u30c8\u304c\u3042\u308a\u307e\u305b\u3093`, exporting:"\u66f8\u304d\u51fa\u3057\u4e2d\u2026", saved:"\u4fdd\u5b58\u3057\u307e\u3057\u305f \u2713",
     addShotFirst:"\u5148\u306b\u30b9\u30af\u30ea\u30fc\u30f3\u30b7\u30e7\u30c3\u30c8\u3092\u8ffd\u52a0\u3057\u3066\u304f\u3060\u3055\u3044",
     loadSample:"\u30b5\u30f3\u30d7\u30eb\u3092\u8aad\u307f\u8fbc\u3080", presets:"\u30d7\u30ea\u30bb\u30c3\u30c8", sampleLoaded:"\u30b5\u30f3\u30d7\u30eb\u3092\u8aad\u307f\u8fbc\u307f\u307e\u3057\u305f", deckFull:"\u5148\u306b\u30b9\u30e9\u30a4\u30c9\u3092\u524a\u9664\u3057\u3066\u304f\u3060\u3055\u3044\uff08\u6700\u592710\uff09",
+    project:"\u30d7\u30ed\u30b8\u30a7\u30af\u30c8", saveProject:"\u4fdd\u5b58", loadProject:"\u8aad\u307f\u8fbc\u307f", projectNote:"\u30c7\u30c3\u30ad\u5168\u4f53\uff08\u30c6\u30ad\u30b9\u30c8\u30fb\u753b\u50cf\u30fb\u30b9\u30bf\u30a4\u30eb\uff09\u3092 .json \u306b\u4fdd\u5b58\u3057\u3001\u3042\u3068\u3067\u518d\u5ea6\u958b\u3051\u307e\u3059\u3002", projectSaved:"\u30d7\u30ed\u30b8\u30a7\u30af\u30c8\u3092\u4fdd\u5b58\u3057\u307e\u3057\u305f \u2713", projectLoaded:"\u30d7\u30ed\u30b8\u30a7\u30af\u30c8\u3092\u8aad\u307f\u8fbc\u307f\u307e\u3057\u305f \u2713", projectError:"\u30d7\u30ed\u30b8\u30a7\u30af\u30c8\u30d5\u30a1\u30a4\u30eb\u3092\u8aad\u307f\u8fbc\u3081\u307e\u305b\u3093\u3067\u3057\u305f",
     exportingN:(n,l)=>`\u66f8\u304d\u51fa\u3057\u4e2d\u2026 ${n}\u679a (${l})`, doneN:(n)=>`\u5b8c\u4e86 \u2014 ${n}\u679a\u3092\u4fdd\u5b58 \u2713`,
     exportingZip:(i,n,l)=>`\u66f8\u304d\u51fa\u3057\u4e2d\u2026 ${i}/${n} (${l})`, zipSaved:(n)=>`ZIP\u3092\u4fdd\u5b58 \u2014 ${n}\u679a \u2713`
   },
@@ -326,6 +340,7 @@ const STRINGS = {
     noShot:(d)=>`\uc774 \uc2ac\ub77c\uc774\ub4dc\uc5d0 ${d} \uc2a4\ud06c\ub9b0\uc0f7\uc774 \uc5c6\uc2b5\ub2c8\ub2e4`, exporting:"\ub0b4\ubcf4\ub0b4\ub294 \uc911\u2026", saved:"\uc800\uc7a5\ub428 \u2713",
     addShotFirst:"\uba3c\uc800 \uc2a4\ud06c\ub9b0\uc0f7\uc744 \ucd94\uac00\ud558\uc138\uc694",
     loadSample:"\uc0d8\ud50c \ubd88\ub7ec\uc624\uae30", presets:"\ud504\ub9ac\uc14b", sampleLoaded:"\uc0d8\ud50c\uc744 \ubd88\ub7ec\uc654\uc5b4\uc694", deckFull:"\uc2ac\ub77c\uc774\ub4dc\ub97c \uba3c\uc800 \uc0ad\uc81c\ud558\uc138\uc694 (\ucd5c\ub300 10)",
+    project:"\ud504\ub85c\uc81d\ud2b8", saveProject:"\uc800\uc7a5", loadProject:"\ubd88\ub7ec\uc624\uae30", projectNote:"\ub371 \uc804\uccb4(\ubb38\uad6c\u00b7\uc774\ubbf8\uc9c0\u00b7\uc2a4\ud0c0\uc77c)\ub97c .json \ud30c\uc77c\ub85c \uc800\uc7a5\ud574 \ub098\uc911\uc5d0 \ub2e4\uc2dc \uc5f4 \uc218 \uc788\uc5b4\uc694.", projectSaved:"\ud504\ub85c\uc81d\ud2b8 \uc800\uc7a5\ub428 \u2713", projectLoaded:"\ud504\ub85c\uc81d\ud2b8 \ubd88\ub7ec\uc634 \u2713", projectError:"\ud504\ub85c\uc81d\ud2b8 \ud30c\uc77c\uc744 \uc77d\uc9c0 \ubabb\ud588\uc5b4\uc694",
     exportingN:(n,l)=>`\ub0b4\ubcf4\ub0b4\ub294 \uc911\u2026 ${n}\uc7a5 (${l})`, doneN:(n)=>`\uc644\ub8cc \u2014 ${n}\uc7a5 \uc800\uc7a5 \u2713`,
     exportingZip:(i,n,l)=>`\ub0b4\ubcf4\ub0b4\ub294 \uc911\u2026 ${i}/${n} (${l})`, zipSaved:(n)=>`ZIP \uc800\uc7a5 \u2014 ${n}\uc7a5 \u2713`
   }
@@ -664,6 +679,7 @@ function wireDrop(id, dev){
 /* ---------- sample deck + style presets (no extra assets; mockup drawn on canvas) ---------- */
 const PRESETS=[
   {bgType:"gradient",bg1:"#0E2A47",bg2:"#1C5C8C",titleColor:"#FFFFFF",subColor:"#C9D8E8"}, // Ocean (default)
+  {bgType:"gradient",bg1:"#FFFFFF",bg2:"#ECEDF0",titleColor:"#1D1D1F",subColor:"#6E6E73"}, // Snow (Apple-like light)
   {bgType:"gradient",bg1:"#3A1C71",bg2:"#8A4DD6",titleColor:"#FFFFFF",subColor:"#E0D2FA"}, // Grape
   {bgType:"gradient",bg1:"#7A1F4B",bg2:"#E2795F",titleColor:"#FFFFFF",subColor:"#FBD9C9"}, // Sunset
   {bgType:"gradient",bg1:"#0F3D2E",bg2:"#2E9E6B",titleColor:"#FFFFFF",subColor:"#CDECDD"}, // Forest
@@ -727,6 +743,62 @@ function loadSample(){
   toast(t("sampleLoaded"));
 }
 
+/* ---------- project save / load (JSON; screenshots stored as data URLs) ---------- */
+function imgToDataURL(img){
+  const c=document.createElement("canvas"); c.width=img.naturalWidth; c.height=img.naturalHeight;
+  c.getContext("2d").drawImage(img,0,0); return c.toDataURL("image/png");
+}
+function saveProject(){
+  const data={ v:1, device:state.device, format:state.format, locale:state.locale, current:state.current,
+    locSel:state.locSel, style:state.style,
+    slides: state.slides.map(s=>({ loc:s.loc,
+      img:{ iphone:s.img.iphone?imgToDataURL(s.img.iphone):null, ipad:s.img.ipad?imgToDataURL(s.img.ipad):null } })) };
+  download(new Blob([JSON.stringify(data)],{type:"application/json"}), "shotsmith_project.json");
+  toast(t("projectSaved"));
+}
+function segOn(id,attr,val){ $("#"+id).querySelectorAll("button").forEach(b=>b.classList.toggle("on", b.dataset[attr]===String(val))); }
+function syncControls(){                                  // push full state.style/device/format/locale into the DOM controls
+  const s=state.style;
+  segOn("deviceSeg","dev",state.device); segOn("fmtSeg","fmt",state.format);
+  segOn("localeSeg","loc",state.locale); segOn("bgSeg","bg",s.bgType);
+  segOn("shadowSeg","sh",s.shadow?"1":"0"); segOn("fillSeg","fill",s.fill?"1":"0");
+  $("#rowG1").style.display=s.bgType==="gradient"?"":"none";
+  $("#rowG2").style.display=s.bgType==="gradient"?"":"none";
+  $("#rowSolid").style.display=s.bgType==="solid"?"flex":"none";
+  $("#bg1").value=s.bg1; $("#bg2").value=s.bg2; $("#bgSolid").value=s.bgSolid;
+  $("#titleColor").value=s.titleColor; $("#subColor").value=s.subColor; $("#fontFamily").value=s.fontFamily;
+  const sl=(id,vId,val,fmt)=>{ $("#"+id).value=val; $("#"+vId).textContent=fmt(val); };
+  sl("titleSize","titleSizeV",Math.round(s.titleSize*1000),v=>(v/10).toFixed(1)+"%");
+  sl("subSize","subSizeV",Math.round(s.subSize*1000),v=>(v/10).toFixed(1)+"%");
+  sl("textZone","textZoneV",Math.round(s.textZone*100),v=>v+"%");
+  sl("corner","cornerV",Math.round(s.corner*100),v=>v+"%");
+  sl("trimTop","trimTopV",Math.round(s.trimTop*100),v=>v+"%");
+}
+function loadProject(file){
+  if(!file) return;
+  const r=new FileReader();
+  r.onload=()=>{
+    let d; try{ d=JSON.parse(r.result); }catch(e){ return toast(t("projectError")); }
+    if(!d || !Array.isArray(d.slides) || !d.slides.length) return toast(t("projectError"));
+    if(d.style) Object.assign(state.style, d.style);
+    if(d.locSel) state.locSel=d.locSel;
+    if(d.device==="iphone"||d.device==="ipad") state.device=d.device;
+    if(d.format==="png"||d.format==="jpeg") state.format=d.format;
+    if(LOCALES.includes(d.locale)) state.locale=d.locale;
+    state.slides=d.slides.map(sd=>{
+      const s=newSlide();
+      LOCALES.forEach(L=>{ const tt=sd.loc&&sd.loc[L]; if(tt) s.loc[L]={title:tt.title||"", subtitle:tt.subtitle||""}; });
+      ["iphone","ipad"].forEach(dev=>{ const src=sd.img&&sd.img[dev];
+        if(src){ const im=new Image(); im.onload=()=>{ s.img[dev]=im; syncEditor(); renderSlides(); renderPreview(); }; im.src=src; } });
+      return s;
+    });
+    state.current=Math.min(Math.max(0, d.current|0), state.slides.length-1);
+    applyI18n(); syncControls(); syncEditor(); renderSlides(); renderPreview();
+    toast(t("projectLoaded"));
+  };
+  r.readAsText(file);
+}
+
 /* ---------- toast ---------- */
 let toastT; function toast(msg){const el=$("#toast");el.textContent=msg;el.classList.add("show");
   clearTimeout(toastT);toastT=setTimeout(()=>el.classList.remove("show"),2000);}
@@ -777,6 +849,9 @@ $("#next").addEventListener("click",()=>{state.current=(state.current+1)%state.s
 $("#exportOne").addEventListener("click",exportCurrent);
 $("#exportAll").addEventListener("click",exportAll);
 $("#loadSample").addEventListener("click",loadSample);
+$("#saveProject").addEventListener("click",saveProject);
+$("#loadProjectBtn").addEventListener("click",()=>$("#loadProjectInput").click());
+$("#loadProjectInput").addEventListener("change",e=>{ loadProject(e.target.files[0]); e.target.value=""; });
 LOCALES.forEach(L=>$("#exp-"+L).addEventListener("change",e=>{ state.locSel[L]=e.target.checked; }));
 wireDrop("dropIphone","iphone"); wireDrop("dropIpad","ipad");
 

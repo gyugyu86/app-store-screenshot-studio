@@ -24,6 +24,8 @@ No accounts. No cloud. No tracking. Everything runs locally in the browser.
 - **Up to 10 slides**, one screenshot set per device.
 - **Instant start** — "Try a sample" loads a demo mockup + copy so you see a result immediately (no
   screenshots needed yet), and one-click style **Presets** give a polished look fast.
+- **Save & resume** — "Save" exports your whole deck (text, screenshots, style) to a JSON file;
+  "Load" re-opens it later to keep working or share it.
 - **Batch ZIP export** — "Export all" bundles every slide × device × language into a single
   `shotsmith_screenshots.zip`, foldered `{language}/{device}_{NN}.png` so each folder maps to App
   Store Connect's per-language slots. iPhone / iPad and EN / JA / KR checkboxes let you export just the
