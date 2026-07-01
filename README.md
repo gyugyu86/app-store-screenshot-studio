@@ -22,6 +22,8 @@ No accounts. No cloud. No tracking. Everything runs locally in the browser.
   corner radius, drop shadow, a **Fit / Fill** toggle for screenshot sizing (aspect ratio preserved),
   and a **Trim top** control to cleanly remove the simulator status bar.
 - **Up to 10 slides**, one screenshot set per device.
+- **Instant start** — "Try a sample" loads a demo mockup + copy so you see a result immediately (no
+  screenshots needed yet), and one-click style **Presets** give a polished look fast.
 - **Batch ZIP export** — "Export all" bundles every slide × device × language into a single
   `shotsmith_screenshots.zip`, foldered `{language}/{device}_{NN}.png` so each folder maps to App
   Store Connect's per-language slots. iPhone / iPad and EN / JA / KR checkboxes let you export just the

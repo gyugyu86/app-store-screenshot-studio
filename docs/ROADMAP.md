@@ -18,6 +18,7 @@ Most paid/SaaS tools lose users to bloat and friction (long onboarding, 45-minut
 - **Batch ZIP export** — "Export all" bundles every slide × device × locale into a single `shotsmith_screenshots.zip`, foldered `{locale}/{device}_{NN}.{ext}` (e.g. `ja/iphone_01.png`) for App Store Connect's per-locale slots.
 - **Per-device export selection** — iPhone / iPad checkboxes on "Export all" so an iPhone-only (or iPad-only) listing doesn't produce the other class's files.
 - **Per-language export selection** — EN / 日本語 / 한국어 checkboxes on "Export all" that auto-follow the languages you've authored (overridable), replacing the old "EN always exported" rule, so a single-language deck doesn't emit empty files for the others.
+- **Instant start (adoption)** — "Try a sample" loads a demo slide with a canvas-drawn generic app mockup (no bundled asset) + example EN/JA/KR copy, and a **Presets** row applies a coordinated background+text look in one click. Lowers first-run friction for visitors who don't have screenshots handy.
 
 ## Next up (v2) — high ROI, in priority order
 

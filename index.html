@@ -47,6 +47,10 @@
   .expsel label{display:inline-flex;align-items:center;gap:5px;cursor:pointer;user-select:none;color:var(--ink)}
   .expsel input{accent-color:var(--accent);cursor:pointer;width:15px;height:15px;margin:0}
   .expsel .sep{width:1px;height:15px;background:var(--line);margin:0 1px}
+  .preslab{font-size:11px;color:var(--faint);margin-bottom:7px}
+  .presets{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:13px}
+  .presets button{width:38px;height:26px;border-radius:7px;border:1px solid var(--line);cursor:pointer;padding:0}
+  .presets button:hover{border-color:var(--faint)}
 
   main{flex:1;display:grid;grid-template-columns:340px 1fr;min-height:0}
   .rail{border-right:1px solid var(--line);background:var(--panel);overflow-y:auto;padding:16px}
@@ -121,6 +125,7 @@
 <body>
 <header>
   <div class="brand"><b>Shotsmith</b><span>app store screenshots · EN/JA/KR</span></div>
+  <button class="btn" id="loadSample" data-i18n="loadSample">Try a sample</button>
   <div class="spacer"></div>
   <div class="seg" id="deviceSeg">
     <button data-dev="iphone" class="on">iPhone <span class="d">1284×2778</span></button>
@@ -182,6 +187,8 @@
 
     <div class="sec">
       <h3 data-i18n="background">Background</h3>
+      <div class="preslab" data-i18n="presets">Presets</div>
+      <div class="presets" id="presets"></div>
       <div class="seg" id="bgSeg" style="margin-bottom:11px">
         <button data-bg="gradient" class="on" data-i18n="gradient">Gradient</button>
         <button data-bg="solid" data-i18n="solid">Solid</button>
@@ -276,6 +283,7 @@ const STRINGS = {
     downloadCurrent:"Download current", exportAll:"Export all", exportInclude:"Include:", pickDevice:"Pick at least one device", pickLang:"Pick at least one language", screenshotNeeded:"screenshot needed",
     noShot:(d)=>`No ${d} screenshot on this slide`, exporting:"Exporting\u2026", saved:"Saved \u2713",
     addShotFirst:"Add a screenshot first",
+    loadSample:"Try a sample", presets:"Presets", sampleLoaded:"Sample loaded — tweak or export it", deckFull:"Remove a slide first (max 10)",
     exportingN:(n,l)=>`Exporting\u2026 ${n} files (${l})`, doneN:(n)=>`Done \u2014 ${n} files saved \u2713`,
     exportingZip:(i,n,l)=>`Exporting\u2026 ${i}/${n} (${l})`, zipSaved:(n)=>`ZIP saved \u2014 ${n} files \u2713`
   },
@@ -296,6 +304,7 @@ const STRINGS = {
     downloadCurrent:"\u73fe\u5728\u306e\u3082\u306e\u3092\u4fdd\u5b58", exportAll:"\u3059\u3079\u3066\u66f8\u304d\u51fa\u3057", exportInclude:"\u5bfe\u8c61:", pickDevice:"\u30c7\u30d0\u30a4\u30b9\u30921\u3064\u4ee5\u4e0a\u9078\u3093\u3067\u304f\u3060\u3055\u3044", pickLang:"\u8a00\u8a9e\u30921\u3064\u4ee5\u4e0a\u9078\u3093\u3067\u304f\u3060\u3055\u3044", screenshotNeeded:"\u8981\u30b9\u30af\u30ea\u30fc\u30f3\u30b7\u30e7\u30c3\u30c8",
     noShot:(d)=>`\u3053\u306e\u30b9\u30e9\u30a4\u30c9\u306b${d}\u30b9\u30af\u30ea\u30fc\u30f3\u30b7\u30e7\u30c3\u30c8\u304c\u3042\u308a\u307e\u305b\u3093`, exporting:"\u66f8\u304d\u51fa\u3057\u4e2d\u2026", saved:"\u4fdd\u5b58\u3057\u307e\u3057\u305f \u2713",
     addShotFirst:"\u5148\u306b\u30b9\u30af\u30ea\u30fc\u30f3\u30b7\u30e7\u30c3\u30c8\u3092\u8ffd\u52a0\u3057\u3066\u304f\u3060\u3055\u3044",
+    loadSample:"\u30b5\u30f3\u30d7\u30eb\u3092\u8aad\u307f\u8fbc\u3080", presets:"\u30d7\u30ea\u30bb\u30c3\u30c8", sampleLoaded:"\u30b5\u30f3\u30d7\u30eb\u3092\u8aad\u307f\u8fbc\u307f\u307e\u3057\u305f", deckFull:"\u5148\u306b\u30b9\u30e9\u30a4\u30c9\u3092\u524a\u9664\u3057\u3066\u304f\u3060\u3055\u3044\uff08\u6700\u592710\uff09",
     exportingN:(n,l)=>`\u66f8\u304d\u51fa\u3057\u4e2d\u2026 ${n}\u679a (${l})`, doneN:(n)=>`\u5b8c\u4e86 \u2014 ${n}\u679a\u3092\u4fdd\u5b58 \u2713`,
     exportingZip:(i,n,l)=>`\u66f8\u304d\u51fa\u3057\u4e2d\u2026 ${i}/${n} (${l})`, zipSaved:(n)=>`ZIP\u3092\u4fdd\u5b58 \u2014 ${n}\u679a \u2713`
   },
@@ -316,6 +325,7 @@ const STRINGS = {
     downloadCurrent:"\ud604\uc7ac \ud56d\ubaa9 \uc800\uc7a5", exportAll:"\uc804\uccb4 \ub0b4\ubcf4\ub0b4\uae30", exportInclude:"\ub300\uc0c1:", pickDevice:"\uae30\uae30\ub97c \ud558\ub098 \uc774\uc0c1 \uc120\ud0dd\ud558\uc138\uc694", pickLang:"\uc5b8\uc5b4\ub97c \ud558\ub098 \uc774\uc0c1 \uc120\ud0dd\ud558\uc138\uc694", screenshotNeeded:"\uc2a4\ud06c\ub9b0\uc0f7 \ud544\uc694",
     noShot:(d)=>`\uc774 \uc2ac\ub77c\uc774\ub4dc\uc5d0 ${d} \uc2a4\ud06c\ub9b0\uc0f7\uc774 \uc5c6\uc2b5\ub2c8\ub2e4`, exporting:"\ub0b4\ubcf4\ub0b4\ub294 \uc911\u2026", saved:"\uc800\uc7a5\ub428 \u2713",
     addShotFirst:"\uba3c\uc800 \uc2a4\ud06c\ub9b0\uc0f7\uc744 \ucd94\uac00\ud558\uc138\uc694",
+    loadSample:"\uc0d8\ud50c \ubd88\ub7ec\uc624\uae30", presets:"\ud504\ub9ac\uc14b", sampleLoaded:"\uc0d8\ud50c\uc744 \ubd88\ub7ec\uc654\uc5b4\uc694", deckFull:"\uc2ac\ub77c\uc774\ub4dc\ub97c \uba3c\uc800 \uc0ad\uc81c\ud558\uc138\uc694 (\ucd5c\ub300 10)",
     exportingN:(n,l)=>`\ub0b4\ubcf4\ub0b4\ub294 \uc911\u2026 ${n}\uc7a5 (${l})`, doneN:(n)=>`\uc644\ub8cc \u2014 ${n}\uc7a5 \uc800\uc7a5 \u2713`,
     exportingZip:(i,n,l)=>`\ub0b4\ubcf4\ub0b4\ub294 \uc911\u2026 ${i}/${n} (${l})`, zipSaved:(n)=>`ZIP \uc800\uc7a5 \u2014 ${n}\uc7a5 \u2713`
   }
@@ -651,6 +661,72 @@ function wireDrop(id, dev){
   el.addEventListener("drop",e=>loadImageFile(e.dataTransfer.files[0],dev));
 }
 
+/* ---------- sample deck + style presets (no extra assets; mockup drawn on canvas) ---------- */
+const PRESETS=[
+  {bgType:"gradient",bg1:"#0E2A47",bg2:"#1C5C8C",titleColor:"#FFFFFF",subColor:"#C9D8E8"}, // Ocean (default)
+  {bgType:"gradient",bg1:"#3A1C71",bg2:"#8A4DD6",titleColor:"#FFFFFF",subColor:"#E0D2FA"}, // Grape
+  {bgType:"gradient",bg1:"#7A1F4B",bg2:"#E2795F",titleColor:"#FFFFFF",subColor:"#FBD9C9"}, // Sunset
+  {bgType:"gradient",bg1:"#0F3D2E",bg2:"#2E9E6B",titleColor:"#FFFFFF",subColor:"#CDECDD"}, // Forest
+  {bgType:"solid",bgSolid:"#111827",titleColor:"#FFFFFF",subColor:"#9CA3AF"}               // Ink
+];
+function renderPresets(){
+  const box=$("#presets"); box.innerHTML="";
+  PRESETS.forEach(p=>{
+    const b=document.createElement("button");
+    b.style.background = p.bgType==="gradient" ? `linear-gradient(160deg,${p.bg1},${p.bg2})` : p.bgSolid;
+    b.addEventListener("click",()=>applyPreset(p));
+    box.appendChild(b);
+  });
+}
+function applyPreset(p){
+  const s=state.style; s.bgType=p.bgType;
+  if(p.bgType==="gradient"){ s.bg1=p.bg1; s.bg2=p.bg2; $("#bg1").value=p.bg1; $("#bg2").value=p.bg2; }
+  else { s.bgSolid=p.bgSolid; $("#bgSolid").value=p.bgSolid; }
+  s.titleColor=p.titleColor; s.subColor=p.subColor;
+  $("#titleColor").value=p.titleColor; $("#subColor").value=p.subColor;
+  $("#bgSeg").querySelectorAll("button").forEach(b=>b.classList.toggle("on", b.dataset.bg===p.bgType));
+  $("#rowG1").style.display=p.bgType==="gradient"?"":"none";
+  $("#rowG2").style.display=p.bgType==="gradient"?"":"none";
+  $("#rowSolid").style.display=p.bgType==="solid"?"flex":"none";
+  renderPreview();
+}
+function mockupDataURL(w,h){                              // draws a generic to-do app screen → PNG data URL
+  const c=document.createElement("canvas"); c.width=w; c.height=h; const x=c.getContext("2d");
+  const pad=Math.round(w*0.06), fam='-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif';
+  x.fillStyle="#F2F4F7"; x.fillRect(0,0,w,h);
+  x.fillStyle="#2E9E6B"; roundRectPath(x,pad,Math.round(h*0.05),w-2*pad,Math.round(h*0.10),Math.round(w*0.03)); x.fill();
+  x.fillStyle="#FFFFFF"; x.textBaseline="middle"; x.textAlign="left"; x.font=`700 ${Math.round(w*0.05)}px ${fam}`;
+  x.fillText("Today", pad+Math.round(w*0.045), Math.round(h*0.10));
+  let y=Math.round(h*0.19); const rowH=Math.round(h*0.082), gap=Math.round(h*0.02), lineH=Math.max(3,Math.round(h*0.011));
+  for(let i=0;i<7;i++){
+    x.fillStyle="#FFFFFF"; roundRectPath(x,pad,y,w-2*pad,rowH,Math.round(w*0.02)); x.fill();
+    x.fillStyle="#2E9E6B"; x.beginPath(); x.arc(pad+Math.round(w*0.06),y+rowH/2,Math.round(w*0.022),0,Math.PI*2); x.fill();
+    x.fillStyle="#E3E7ED";
+    roundRectPath(x,pad+Math.round(w*0.12),Math.round(y+rowH*0.30),Math.round(w*0.46),lineH,3); x.fill();
+    roundRectPath(x,pad+Math.round(w*0.12),Math.round(y+rowH*0.56),Math.round(w*0.30),lineH,3); x.fill();
+    y+=rowH+gap;
+  }
+  return c.toDataURL("image/png");
+}
+function deckIsEmpty(){
+  return state.slides.every(s => !s.img.iphone && !s.img.ipad &&
+    LOCALES.every(L => !(s.loc[L].title+s.loc[L].subtitle).trim()));
+}
+function loadSample(){
+  const slide=newSlide();
+  slide.loc.en={title:"Plan your day in seconds", subtitle:"Smart scheduling that adapts to you"};
+  slide.loc.ja={title:"数秒で一日を計画", subtitle:"あなたに合わせて自動でスケジュール"};
+  slide.loc.ko={title:"하루를 몇 초 만에 계획", subtitle:"나에게 맞춰 자동으로 일정 조정"};
+  if(deckIsEmpty()){ state.slides=[slide]; state.current=0; }
+  else if(state.slides.length<10){ state.slides.push(slide); state.current=state.slides.length-1; }
+  else { return toast(t("deckFull")); }
+  const set=(dev,url)=>{ const im=new Image(); im.onload=()=>{ slide.img[dev]=im; syncEditor(); renderSlides(); renderPreview(); }; im.src=url; };
+  set("iphone", mockupDataURL(1080,2280));
+  set("ipad",   mockupDataURL(1640,2180));
+  syncEditor(); renderSlides(); renderPreview();
+  toast(t("sampleLoaded"));
+}
+
 /* ---------- toast ---------- */
 let toastT; function toast(msg){const el=$("#toast");el.textContent=msg;el.classList.add("show");
   clearTimeout(toastT);toastT=setTimeout(()=>el.classList.remove("show"),2000);}
@@ -700,11 +776,12 @@ $("#next").addEventListener("click",()=>{state.current=(state.current+1)%state.s
   syncEditor();renderSlides();renderPreview();});
 $("#exportOne").addEventListener("click",exportCurrent);
 $("#exportAll").addEventListener("click",exportAll);
+$("#loadSample").addEventListener("click",loadSample);
 LOCALES.forEach(L=>$("#exp-"+L).addEventListener("change",e=>{ state.locSel[L]=e.target.checked; }));
 wireDrop("dropIphone","iphone"); wireDrop("dropIpad","ipad");
 
 /* ---------- boot ---------- */
-applyI18n(); syncEditor(); renderSlides(); renderPreview();
+applyI18n(); renderPresets(); syncEditor(); renderSlides(); renderPreview();
 fontsReady.then(renderPreview);
 </script>
 </body>

@@ -48,6 +48,8 @@ font loading — the local server avoids that entirely.)
 ## 4. Interface overview
 
 **Top bar**
+- **Try a sample** — loads a demo slide (a generic app mockup drawn in-app + example EN/JA/KR copy)
+  so you can see a finished screenshot instantly, without needing your own captures.
 - **iPhone / iPad** — switch which device you're previewing and exporting.
 - **PNG / JPEG** — output format. PNG is alpha-free and best for text; JPEG is also accepted.
 - **Download current** — saves just the slide/device/language you're viewing.
@@ -65,7 +67,8 @@ font loading — the local server avoids that entirely.)
 **Slides** — thumbnails of each slide (max 10). Click to select; click × to delete; **+ Add slide**
 to add. The two dots show whether an iPhone / iPad screenshot is loaded.
 
-**Background** — Gradient (top + bottom color) or Solid (one color).
+**Background** — Gradient (top + bottom color) or Solid (one color). The **Presets** row applies a
+coordinated background + text-color look in one click.
 
 **Text** — title/subtitle color, the Latin font for English, and title/subtitle sizes.
 Japanese uses Noto Sans JP and Korean uses Noto Sans KR automatically.
