@@ -203,10 +203,14 @@
       <div class="seg" id="bgSeg" style="margin-bottom:11px">
         <button data-bg="gradient" class="on" data-i18n="gradient">Gradient</button>
         <button data-bg="solid" data-i18n="solid">Solid</button>
+        <button data-bg="image" data-i18n="image">Image</button>
       </div>
       <div class="row" id="rowG1"><label data-i18n="topColor">Top color</label><input type="color" id="bg1" value="#0E2A47"></div>
       <div class="row" id="rowG2"><label data-i18n="bottomColor">Bottom color</label><input type="color" id="bg2" value="#1C5C8C"></div>
       <div class="row" id="rowSolid" style="display:none"><label data-i18n="color">Color</label><input type="color" id="bgSolid" value="#111827"></div>
+      <div class="row" id="rowBgImg" style="display:none"><label data-i18n="image">Image</label>
+        <button class="btn" id="bgImgBtn" data-i18n="upload" style="padding:6px 12px">Upload…</button>
+        <input type="file" id="bgImgInput" accept="image/*" hidden></div>
     </div>
 
     <div class="sec">
@@ -303,7 +307,7 @@ const STRINGS = {
     imgShared:"The screenshot is shared across languages (text only is translated). Empty JA/KR fields fall back to EN.",
     appleRule:"Apple rule: keep overlay text descriptive and factual. Superlatives, rankings, awards, or competitor comparisons risk rejection.",
     slides:"Slides", untitled:"Untitled", addSlide:"+ Add slide",
-    background:"Background", gradient:"Gradient", solid:"Solid",
+    background:"Background", gradient:"Gradient", solid:"Solid", image:"Image", upload:"Upload…",
     topColor:"Top color", bottomColor:"Bottom color", color:"Color",
     text:"Text", titleColor:"Title color", subColor:"Subtitle color",
     latinFont:"Latin font (EN)", fontNote:"JA \u2192 Noto Sans JP, KR \u2192 Noto Sans KR (bundled).",
@@ -325,7 +329,7 @@ const STRINGS = {
     imgShared:"\u30b9\u30af\u30ea\u30fc\u30f3\u30b7\u30e7\u30c3\u30c8\u306f\u8a00\u8a9e\u5171\u901a\uff08\u30c6\u30ad\u30b9\u30c8\u306e\u307f\u7ffb\u8a33\uff09\u3002JA/KR\u304c\u7a7a\u306a\u3089EN\u3067\u81ea\u52d5\u88dc\u5b8c\u3002",
     appleRule:"Apple\u306e\u898f\u5247\uff1a\u30aa\u30fc\u30d0\u30fc\u30ec\u30a4\u6587\u306f\u6a5f\u80fd\u3092\u8aac\u660e\u3059\u308b\u4e8b\u5b9f\u7684\u306a\u8868\u73fe\u3067\u3002\u300c\u6700\u9ad8\u30fb1\u4f4d\u30fb\u53d7\u8cde\u30fb\u7af6\u5408\u6bd4\u8f03\u300d\u306f\u5374\u4e0b\u30ea\u30b9\u30af\u3002",
     slides:"\u30b9\u30e9\u30a4\u30c9", untitled:"\u7121\u984c", addSlide:"+ \u30b9\u30e9\u30a4\u30c9\u3092\u8ffd\u52a0",
-    background:"\u80cc\u666f", gradient:"\u30b0\u30e9\u30c7\u30fc\u30b7\u30e7\u30f3", solid:"\u5358\u8272",
+    background:"\u80cc\u666f", gradient:"\u30b0\u30e9\u30c7\u30fc\u30b7\u30e7\u30f3", solid:"\u5358\u8272", image:"\u753b\u50cf", upload:"\u30a2\u30c3\u30d7\u30ed\u30fc\u30c9",
     topColor:"\u4e0a\u306e\u8272", bottomColor:"\u4e0b\u306e\u8272", color:"\u8272",
     text:"\u30c6\u30ad\u30b9\u30c8", titleColor:"\u30bf\u30a4\u30c8\u30eb\u8272", subColor:"\u30b5\u30d6\u30bf\u30a4\u30c8\u30eb\u8272",
     latinFont:"\u30e9\u30c6\u30f3\u6587\u5b57\u30d5\u30a9\u30f3\u30c8 (EN)", fontNote:"JA \u2192 Noto Sans JP\u3001KR \u2192 Noto Sans KR\uff08\u540c\u68b1\uff09\u3002",
@@ -347,7 +351,7 @@ const STRINGS = {
     imgShared:"\uc2a4\ud06c\ub9b0\uc0f7\uc740 \uc5b8\uc5b4 \uacf5\ud1b5\uc73c\ub85c \uc4f0\uc785\ub2c8\ub2e4(\ud14d\uc2a4\ud2b8\ub9cc \ubc88\uc5ed). JA/KR \ubb38\uad6c\uac00 \ube44\uba74 EN\uc73c\ub85c \uc790\ub3d9 \ub300\uccb4\ub429\ub2c8\ub2e4.",
     appleRule:"Apple \uaddc\uce59: \uc624\ubc84\ub808\uc774 \ubb38\uad6c\ub294 \uae30\ub2a5\uc744 \uc124\uba85\ud558\ub294 \uc0ac\uc2e4\uc801 \ud1a4\uc73c\ub85c. \"\ucd5c\uace0\u00b71\uc704\u00b7\uc218\uc0c1\u00b7\uacbd\uc7c1\uc0ac \ube44\uad50\"\ub294 \ub9ac\uc81d \uc704\ud5d8\uc774 \uc788\uc5b4\uc694.",
     slides:"\uc2ac\ub77c\uc774\ub4dc", untitled:"\uc81c\ubaa9 \uc5c6\uc74c", addSlide:"+ \uc2ac\ub77c\uc774\ub4dc \ucd94\uac00",
-    background:"\ubc30\uacbd", gradient:"\uadf8\ub77c\ub370\uc774\uc158", solid:"\ub2e8\uc0c9",
+    background:"\ubc30\uacbd", gradient:"\uadf8\ub77c\ub370\uc774\uc158", solid:"\ub2e8\uc0c9", image:"\uc774\ubbf8\uc9c0", upload:"\uc5c5\ub85c\ub4dc",
     topColor:"\uc704\ucabd \uc0c9", bottomColor:"\uc544\ub798\ucabd \uc0c9", color:"\uc0c9",
     text:"\ud14d\uc2a4\ud2b8", titleColor:"\ud0c0\uc774\ud2c0 \uc0c9", subColor:"\uc11c\ube0c\ud0c0\uc774\ud2c0 \uc0c9",
     latinFont:"\ub77c\ud2f4 \ud3f0\ud2b8 (EN)", fontNote:"JA \u2192 Noto Sans JP, KR \u2192 Noto Sans KR \uc790\ub3d9 \uc801\uc6a9(\ubc88\ub4e4 \ud3f0\ud2b8).",
@@ -379,7 +383,7 @@ const state = {
   locSel:{en:null, ja:null, ko:null},   // export language selection: null=auto(follow content), bool=manual
   slides:[ newSlide() ],
   style:{
-    bgType:"gradient", bg1:"#0E2A47", bg2:"#1C5C8C", bgSolid:"#111827",
+    bgType:"gradient", bg1:"#0E2A47", bg2:"#1C5C8C", bgSolid:"#111827", bgImg:null,
     titleColor:"#FFFFFF", subColor:"#C9D8E8",
     fontFamily:'-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif',
     titleSize:0.058, subSize:0.034,
@@ -456,10 +460,27 @@ function roundRectPath(ctx,x,y,w,h,r){
   ctx.arcTo(x,y+h,x,y,r);ctx.arcTo(x,y,x+w,y,r);ctx.closePath();
 }
 function lum(hex){ const h=hex.replace("#",""); const r=parseInt(h.slice(0,2),16),g=parseInt(h.slice(2,4),16),b=parseInt(h.slice(4,6),16); return (0.299*r+0.587*g+0.114*b)/255; }
+let _bgEl=null;
+function bgImageEl(){                          // cached background-image element (from a data URL); re-renders on load
+  const src=state.style.bgImg; if(!src) return null;
+  if(!_bgEl || _bgEl._src!==src){ _bgEl=new Image(); _bgEl._src=src; _bgEl.onload=()=>renderPreview(); _bgEl.src=src; }
+  return (_bgEl.complete && _bgEl.naturalWidth) ? _bgEl : null;
+}
+function bgRows(t){                            // show the bg controls that match the selected type
+  $("#rowG1").style.display=t==="gradient"?"":"none";
+  $("#rowG2").style.display=t==="gradient"?"":"none";
+  $("#rowSolid").style.display=t==="solid"?"flex":"none";
+  $("#rowBgImg").style.display=t==="image"?"flex":"none";
+}
 
 function renderTo(ctx, dev, slide, locale, forExport){
   const {w,h}=DEVICES[dev], s=state.style;
-  if(s.bgType==="solid"){ ctx.fillStyle=s.bgSolid; ctx.fillRect(0,0,w,h); }
+  if(s.bgType==="image"){
+    const bi=bgImageEl();
+    if(bi){ const sc=Math.max(w/bi.naturalWidth, h/bi.naturalHeight), iw=bi.naturalWidth*sc, ih=bi.naturalHeight*sc;
+      ctx.drawImage(bi,(w-iw)/2,(h-ih)/2,iw,ih); }                    // cover
+    else { ctx.fillStyle=s.bgSolid; ctx.fillRect(0,0,w,h); }          // fallback while it loads / none set
+  } else if(s.bgType==="solid"){ ctx.fillStyle=s.bgSolid; ctx.fillRect(0,0,w,h); }
   else{ const g=ctx.createLinearGradient(0,0,0,h); g.addColorStop(0,s.bg1); g.addColorStop(1,s.bg2);
         ctx.fillStyle=g; ctx.fillRect(0,0,w,h); }
 
@@ -737,9 +758,7 @@ function applyPreset(p){
   s.titleColor=p.titleColor; s.subColor=p.subColor;
   $("#titleColor").value=p.titleColor; $("#subColor").value=p.subColor;
   $("#bgSeg").querySelectorAll("button").forEach(b=>b.classList.toggle("on", b.dataset.bg===p.bgType));
-  $("#rowG1").style.display=p.bgType==="gradient"?"":"none";
-  $("#rowG2").style.display=p.bgType==="gradient"?"":"none";
-  $("#rowSolid").style.display=p.bgType==="solid"?"flex":"none";
+  bgRows(p.bgType);
   renderPreview();
 }
 function mockupDataURL(w,h){                              // draws a generic to-do app screen → PNG data URL
@@ -799,9 +818,7 @@ function syncControls(){                                  // push full state.sty
   segOn("deviceSeg","dev",state.device); segOn("fmtSeg","fmt",state.format);
   segOn("localeSeg","loc",state.locale); segOn("bgSeg","bg",s.bgType);
   segOn("shadowSeg","sh",s.shadow?"1":"0"); segOn("fillSeg","fill",s.fill?"1":"0"); segOn("frameSeg","fr",s.frame?"1":"0");
-  $("#rowG1").style.display=s.bgType==="gradient"?"":"none";
-  $("#rowG2").style.display=s.bgType==="gradient"?"":"none";
-  $("#rowSolid").style.display=s.bgType==="solid"?"flex":"none";
+  bgRows(s.bgType);
   $("#bg1").value=s.bg1; $("#bg2").value=s.bg2; $("#bgSolid").value=s.bgSolid;
   $("#titleColor").value=s.titleColor; $("#subColor").value=s.subColor; $("#fontFamily").value=s.fontFamily;
   const sl=(id,vId,val,fmt)=>{ $("#"+id).value=val; $("#"+vId).textContent=fmt(val); };
@@ -851,10 +868,10 @@ function seg(id, attr, fn){
 seg("deviceSeg","dev",v=>{state.device=v;renderPreview();});
 seg("fmtSeg","fmt",v=>{state.format=v;renderPreview();});
 seg("localeSeg","loc",v=>{state.locale=v;applyI18n();syncEditor();renderSlides();renderPreview();});
-seg("bgSeg","bg",v=>{state.style.bgType=v;
-  $("#rowG1").style.display=v==="gradient"?"":"none";
-  $("#rowG2").style.display=v==="gradient"?"":"none";
-  $("#rowSolid").style.display=v==="solid"?"flex":"none"; renderPreview();});
+seg("bgSeg","bg",v=>{state.style.bgType=v; bgRows(v); renderPreview();});
+$("#bgImgBtn").addEventListener("click",()=>$("#bgImgInput").click());
+$("#bgImgInput").addEventListener("change",e=>{ const f=e.target.files[0]; if(!f) return;
+  const r=new FileReader(); r.onload=()=>{ state.style.bgImg=r.result; renderPreview(); }; r.readAsDataURL(f); e.target.value=""; });
 seg("shadowSeg","sh",v=>{state.style.shadow=v==="1";renderPreview();});
 seg("fillSeg","fill",v=>{state.style.fill=v==="1";renderPreview();});
 seg("frameSeg","fr",v=>{state.style.frame=v==="1"; const _d=state.style.frame?"flex":"none"; $("#rowFrameW").style.display=_d; $("#rowFrameC").style.display=_d; renderPreview();});
