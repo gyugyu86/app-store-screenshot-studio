@@ -72,7 +72,8 @@ drawn cover-fit). The **Presets** row applies a coordinated background + text-co
 (including a clean white/light "Apple" look).
 
 **Text** — a **Logo** overlay (upload; sits above the title, size-adjustable), title/subtitle color,
-**independent Latin fonts for title and subtitle** (EN), and title/subtitle sizes.
+**independent Latin fonts for title and subtitle** (EN) each with a **weight** (Regular/Medium/Bold/Black —
+the weight applies to Japanese/Korean too), and title/subtitle sizes.
 Japanese uses Noto Sans JP and Korean uses Noto Sans KR automatically.
 
 **Layout**
