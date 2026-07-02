@@ -298,23 +298,35 @@
       <div class="row"><label data-i18n="subColor">Subtitle color</label><input type="color" id="subColor" value="#C9D8E8"></div>
       <div class="field" style="margin-top:4px">
         <div class="lab"><span data-i18n="titleFont">Title font (EN)</span></div>
-        <select id="fontFamily">
-          <option value='-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif'>System (San Francisco)</option>
-          <option value='"Helvetica Neue",Helvetica,Arial,sans-serif'>Helvetica Neue</option>
-          <option value='"Avenir Next","Avenir",sans-serif'>Avenir Next</option>
-          <option value='"Futura","Trebuchet MS",sans-serif'>Futura</option>
-          <option value='Georgia,"Times New Roman",serif'>Georgia (serif)</option>
-        </select>
+        <div style="display:flex;gap:7px">
+          <select id="fontFamily" style="flex:2">
+            <option value='-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif'>System (San Francisco)</option>
+            <option value='"Helvetica Neue",Helvetica,Arial,sans-serif'>Helvetica Neue</option>
+            <option value='"Avenir Next","Avenir",sans-serif'>Avenir Next</option>
+            <option value='"Futura","Trebuchet MS",sans-serif'>Futura</option>
+            <option value='Georgia,"Times New Roman",serif'>Georgia (serif)</option>
+          </select>
+          <select id="titleW" style="flex:1">
+            <option value="400">Regular</option><option value="500">Medium</option>
+            <option value="700" selected>Bold</option><option value="900">Black</option>
+          </select>
+        </div>
       </div>
       <div class="field">
         <div class="lab"><span data-i18n="subFont">Subtitle font (EN)</span></div>
-        <select id="subFont">
-          <option value='-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif'>System (San Francisco)</option>
-          <option value='"Helvetica Neue",Helvetica,Arial,sans-serif'>Helvetica Neue</option>
-          <option value='"Avenir Next","Avenir",sans-serif'>Avenir Next</option>
-          <option value='"Futura","Trebuchet MS",sans-serif'>Futura</option>
-          <option value='Georgia,"Times New Roman",serif'>Georgia (serif)</option>
-        </select>
+        <div style="display:flex;gap:7px">
+          <select id="subFont" style="flex:2">
+            <option value='-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif'>System (San Francisco)</option>
+            <option value='"Helvetica Neue",Helvetica,Arial,sans-serif'>Helvetica Neue</option>
+            <option value='"Avenir Next","Avenir",sans-serif'>Avenir Next</option>
+            <option value='"Futura","Trebuchet MS",sans-serif'>Futura</option>
+            <option value='Georgia,"Times New Roman",serif'>Georgia (serif)</option>
+          </select>
+          <select id="subW" style="flex:1">
+            <option value="400">Regular</option><option value="500" selected>Medium</option>
+            <option value="700">Bold</option><option value="900">Black</option>
+          </select>
+        </div>
         <p class="imgnote" data-i18n="fontNote">JA → Noto Sans JP, KR → Noto Sans KR (bundled).</p>
       </div>
       <div class="row"><label data-i18n="titleSize">Title size</label>
@@ -468,7 +480,7 @@ const state = {
     titleColor:"#FFFFFF", subColor:"#C9D8E8", logo:null, logoSize:0.12,
     fontFamily:'-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif',
     subFont:'-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif',
-    titleSize:0.058, subSize:0.034,
+    titleSize:0.058, subSize:0.034, titleW:700, subW:500,
     textZone:0.26, corner:0.06, shadow:true, fill:false, trimTop:0, frame:false, frameW:0.018, frameColor:"#1C1C1E"
   }
 };
@@ -480,7 +492,7 @@ function newSlide(){
 /* ---- font loading gate (prevents fallback glyphs baked into export) ---- */
 const fontsReady = (async()=>{
   if(!document.fonts) return;
-  const fams=['"Noto Sans JP"','"Noto Sans KR"'], wts=["400","500","700"], sample="\u3042\u6f22\ud55cAB";
+  const fams=['"Noto Sans JP"','"Noto Sans KR"'], wts=["400","500","700","900"], sample="\u3042\u6f22\ud55cAB";
   try{ await Promise.all(fams.flatMap(f=>wts.map(w=>document.fonts.load(`${w} 40px ${f}`, sample)))); }catch(e){}
   try{ await document.fonts.ready; }catch(e){}
 })();
@@ -577,15 +589,15 @@ function renderTo(ctx, dev, slide, locale, forExport){
     const maxW=w*0.86, titlePx=Math.round(h*0.17), subPx=Math.round(h*0.095);
     const tLH=Math.round(titlePx*1.15), sLH=Math.round(subPx*1.3);
     ctx.textAlign="center"; ctx.textBaseline="top";
-    ctx.font=`700 ${titlePx}px ${tFam}`; const tLines=title.trim()?wrapLines(ctx,title.trim(),maxW):[];
-    ctx.font=`500 ${subPx}px ${sFam}`;  const sLines=subtitle.trim()?wrapLines(ctx,subtitle.trim(),maxW):[];
+    ctx.font=`${s.titleW} ${titlePx}px ${tFam}`; const tLines=title.trim()?wrapLines(ctx,title.trim(),maxW):[];
+    ctx.font=`${s.subW} ${subPx}px ${sFam}`;  const sLines=subtitle.trim()?wrapLines(ctx,subtitle.trim(),maxW):[];
     const logo=logoEl(), logoH=logo?Math.round(h*s.logoSize*2):0, gap=Math.round(h*0.05);
     const total=(logoH?logoH+gap:0)+tLines.length*tLH+(sLines.length?Math.round(h*0.035)+sLines.length*sLH:0);
     let y=Math.round((h-total)/2);
     if(logo){ const lw=Math.round(logoH*logo.naturalWidth/logo.naturalHeight); ctx.drawImage(logo,Math.round((w-lw)/2),y,lw,logoH); y+=logoH+gap; }
-    ctx.fillStyle=s.titleColor; ctx.font=`700 ${titlePx}px ${tFam}`;
+    ctx.fillStyle=s.titleColor; ctx.font=`${s.titleW} ${titlePx}px ${tFam}`;
     tLines.forEach(l=>{ ctx.fillText(l,w/2,y); y+=tLH; });
-    if(sLines.length){ y+=Math.round(h*0.035); ctx.fillStyle=s.subColor; ctx.font=`500 ${subPx}px ${sFam}`;
+    if(sLines.length){ y+=Math.round(h*0.035); ctx.fillStyle=s.subColor; ctx.font=`${s.subW} ${subPx}px ${sFam}`;
       sLines.forEach(l=>{ ctx.fillText(l,w/2,y); y+=sLH; }); }
     return;
   }
@@ -604,13 +616,13 @@ function renderTo(ctx, dev, slide, locale, forExport){
     y += lh + Math.round(h*0.018);                                    // text starts below the logo
   }
   if(title.trim()){
-    ctx.font=`700 ${titlePx}px ${titleFam}`; ctx.fillStyle=s.titleColor;
+    ctx.font=`${s.titleW} ${titlePx}px ${titleFam}`; ctx.fillStyle=s.titleColor;
     wrapLines(ctx,title.trim(),maxW).forEach(line=>{
       ctx.fillText(line,(w-ctx.measureText(line).width)/2,y); y+=Math.round(titlePx*1.16); });
   }
   if(subtitle.trim()){
     y+=Math.round(h*0.014);
-    ctx.font=`500 ${subPx}px ${subFam}`; ctx.fillStyle=s.subColor;
+    ctx.font=`${s.subW} ${subPx}px ${subFam}`; ctx.fillStyle=s.subColor;
     wrapLines(ctx,subtitle.trim(),maxW).forEach(line=>{
       ctx.fillText(line,(w-ctx.measureText(line).width)/2,y); y+=Math.round(subPx*1.24); });
   }
@@ -927,6 +939,7 @@ function syncControls(){                                  // push full state.sty
   bgRows(s.bgType);
   $("#bg1").value=s.bg1; $("#bg2").value=s.bg2; $("#bgSolid").value=s.bgSolid;
   $("#titleColor").value=s.titleColor; $("#subColor").value=s.subColor; $("#fontFamily").value=s.fontFamily; $("#subFont").value=s.subFont;
+  $("#titleW").value=s.titleW; $("#subW").value=s.subW;
   const sl=(id,vId,val,fmt)=>{ $("#"+id).value=val; $("#"+vId).textContent=fmt(val); };
   sl("titleSize","titleSizeV",Math.round(s.titleSize*1000),v=>(v/10).toFixed(1)+"%");
   sl("subSize","subSizeV",Math.round(s.subSize*1000),v=>(v/10).toFixed(1)+"%");
@@ -1008,6 +1021,8 @@ $("#titleColor").addEventListener("input",e=>{state.style.titleColor=e.target.va
 $("#subColor").addEventListener("input",e=>{state.style.subColor=e.target.value;renderPreview();});
 $("#fontFamily").addEventListener("change",e=>{state.style.fontFamily=e.target.value;renderPreview();});
 $("#subFont").addEventListener("change",e=>{state.style.subFont=e.target.value;renderPreview();});
+$("#titleW").addEventListener("change",e=>{state.style.titleW=+e.target.value;renderPreview();});
+$("#subW").addEventListener("change",e=>{state.style.subW=+e.target.value;renderPreview();});
 
 function slider(id,vId,fmt,fn){const el=$("#"+id);el.addEventListener("input",()=>{
   const v=parseFloat(el.value);$("#"+vId).textContent=fmt(v);fn(v);renderPreview();});}
