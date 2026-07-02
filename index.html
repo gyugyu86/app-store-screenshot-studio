@@ -68,6 +68,9 @@
   .presets{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:13px}
   .presets button{width:38px;height:26px;border-radius:7px;border:1px solid var(--line);cursor:pointer;padding:0}
   .presets button:hover{border-color:var(--faint)}
+  .presets button.on{border-color:var(--accent);box-shadow:0 0 0 2px var(--accent),0 0 0 4px var(--accent-soft)}
+  .linkbtn{background:transparent;border:0;color:var(--accent);cursor:pointer;font-size:11px;padding:0;font-family:var(--ui)}
+  .linkbtn:hover{text-decoration:underline}
   .fcolors{display:flex;gap:7px}
   .fcolors button{width:24px;height:24px;border-radius:50%;border:1px solid var(--line);cursor:pointer;padding:0}
   .fcolors button.on{border-color:var(--accent);box-shadow:0 0 0 2px var(--accent-soft)}
@@ -177,7 +180,13 @@
     <summary class="btn">Export scope <span class="cv">▾</span></summary>
     <div class="menu">
       <div class="expsel">
-        <span data-i18n="exportInclude">Include:</span>
+        <div style="display:flex;align-items:center;width:100%;gap:10px">
+          <span data-i18n="exportInclude">Include:</span>
+          <span style="margin-left:auto">
+            <button type="button" id="expAll" class="linkbtn">All</button> ·
+            <button type="button" id="expNone" class="linkbtn">None</button>
+          </span>
+        </div>
         <label><input type="checkbox" id="exp-iphone" checked> iPhone</label>
         <label><input type="checkbox" id="exp-ipad" checked> iPad</label>
         <label><input type="checkbox" id="exp-android" checked> Android</label>
@@ -280,7 +289,10 @@
       <div class="row" id="rowG2"><label data-i18n="bottomColor">Bottom color</label><input type="color" id="bg2" value="#1C5C8C"></div>
       <div class="row" id="rowSolid" style="display:none"><label data-i18n="color">Color</label><input type="color" id="bgSolid" value="#111827"></div>
       <div class="row" id="rowBgImg" style="display:none"><label data-i18n="image">Image</label>
-        <button class="btn" id="bgImgBtn" data-i18n="upload" style="padding:6px 12px">Upload…</button>
+        <div style="display:flex;gap:6px">
+          <button class="btn" id="bgImgBtn" data-i18n="upload" style="padding:6px 12px">Upload…</button>
+          <button class="btn" id="bgImgClear" style="padding:6px 10px;display:none">✕</button>
+        </div>
         <input type="file" id="bgImgInput" accept="image/*" hidden></div>
     </div>
 
@@ -570,6 +582,7 @@ function bgRows(t){                            // show the bg controls that matc
   $("#rowG2").style.display=t==="gradient"?"":"none";
   $("#rowSolid").style.display=t==="solid"?"flex":"none";
   $("#rowBgImg").style.display=t==="image"?"flex":"none";
+  $("#bgImgClear").style.display=(t==="image"&&state.style.bgImg)?"":"none";
 }
 
 function renderTo(ctx, dev, slide, locale, forExport){
@@ -672,6 +685,7 @@ function renderTo(ctx, dev, slide, locale, forExport){
 }
 
 async function renderPreview(){
+  markPresets();
   await fontsReady;
   const {w,h}=DEVICES[state.device];
   preview.width=w; preview.height=h;
@@ -870,7 +884,13 @@ function renderPresets(){
     b.addEventListener("click",()=>applyPreset(p));
     box.appendChild(b);
   });
+  markPresets();
 }
+function samePreset(p){ const s=state.style;
+  if(s.bgType!==p.bgType||s.titleColor!==p.titleColor||s.subColor!==p.subColor) return false;
+  return p.bgType==="gradient" ? (s.bg1===p.bg1&&s.bg2===p.bg2) : (s.bgSolid===p.bgSolid);
+}
+function markPresets(){ const box=$("#presets"); if(!box) return; box.querySelectorAll("button").forEach((b,i)=>b.classList.toggle("on",samePreset(PRESETS[i]))); }
 function applyPreset(p){
   const s=state.style; s.bgType=p.bgType;
   if(p.bgType==="gradient"){ s.bg1=p.bg1; s.bg2=p.bg2; $("#bg1").value=p.bg1; $("#bg2").value=p.bg2; }
@@ -998,7 +1018,11 @@ seg("localeSeg","loc",v=>{state.locale=v;applyI18n();syncEditor();renderSlides()
 seg("bgSeg","bg",v=>{state.style.bgType=v; bgRows(v); renderPreview();});
 $("#bgImgBtn").addEventListener("click",()=>$("#bgImgInput").click());
 $("#bgImgInput").addEventListener("change",e=>{ const f=e.target.files[0]; if(!f) return;
-  const r=new FileReader(); r.onload=()=>{ state.style.bgImg=r.result; renderPreview(); }; r.readAsDataURL(f); e.target.value=""; });
+  const r=new FileReader(); r.onload=()=>{ state.style.bgImg=r.result; $("#bgImgClear").style.display=""; renderPreview(); }; r.readAsDataURL(f); e.target.value=""; });
+$("#bgImgClear").addEventListener("click",()=>{ state.style.bgImg=null; state.style.bgType="gradient"; segOn("bgSeg","bg","gradient"); bgRows("gradient"); renderPreview(); });
+function setAllExport(on){ document.querySelectorAll(".expsel input[type=checkbox]").forEach(c=>c.checked=on); LOCALES.forEach(L=>state.locSel[L]=on); }
+$("#expAll").addEventListener("click",()=>setAllExport(true));
+$("#expNone").addEventListener("click",()=>setAllExport(false));
 $("#logoBtn").addEventListener("click",()=>$("#logoInput").click());
 $("#logoInput").addEventListener("change",e=>{ const f=e.target.files[0]; if(!f) return;
   const r=new FileReader(); r.onload=()=>{ state.style.logo=r.result; logoUI(); renderPreview(); }; r.readAsDataURL(f); e.target.value=""; });
