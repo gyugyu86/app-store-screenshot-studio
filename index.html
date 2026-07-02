@@ -74,8 +74,9 @@
   .projbtns{display:flex;gap:8px}
   .projbtns button{flex:1;justify-content:center}
 
-  main{flex:1;display:grid;grid-template-columns:340px 1fr;min-height:0}
+  main{flex:1;display:grid;grid-template-columns:300px minmax(0,1fr) 300px;min-height:0}
   .rail{border-right:1px solid var(--line);background:var(--panel);overflow-y:auto;padding:16px}
+  .rail-right{border-right:0;border-left:1px solid var(--line)}
   .stage{position:relative;display:flex;flex-direction:column;align-items:center;justify-content:center;
     padding:24px;min-height:0;overflow:auto;background:radial-gradient(circle at 50% 0,#1a1d24 0,var(--bg) 60%)}
 
@@ -112,6 +113,10 @@
   .addslide{margin-top:9px;width:100%;justify-content:center;display:flex}
 
   .drops{display:grid;grid-template-columns:1fr 1fr 1fr;gap:9px}
+  .moredrops{margin-top:9px}
+  .moredrops>summary{list-style:none;cursor:pointer;font-size:11px;color:var(--faint);padding:2px 0;display:flex;align-items:center;gap:5px}
+  .moredrops>summary::-webkit-details-marker{display:none}
+  .moredrops>summary:hover{color:var(--muted)}
   .drop{border:1.5px dashed var(--line);border-radius:10px;padding:12px 8px;text-align:center;cursor:pointer;background:var(--bg);transition:border-color .12s,background .12s}
   .drop:hover,.drop.over{border-color:var(--accent);background:var(--accent-soft)}
   .drop.set{border-style:solid;border-color:var(--ok-soft)}
@@ -220,6 +225,10 @@
           <div class="dl">ANDROID SHOT</div><div class="ds" id="dsAndroid">drop / click</div>
           <input type="file" accept="image/*" hidden>
         </div>
+      </div>
+      <details class="moredrops">
+        <summary>More device shots <span class="cv">▾</span></summary>
+        <div class="drops" style="margin-top:8px">
         <div class="drop" id="dropIphone67" data-dev="iphone67">
           <div class="dl">IPHONE 6.7″ SHOT</div><div class="ds" id="dsIphone67">drop / click</div>
           <input type="file" accept="image/*" hidden>
@@ -232,7 +241,8 @@
           <div class="dl">MAC SHOT</div><div class="ds" id="dsMac">drop / click</div>
           <input type="file" accept="image/*" hidden>
         </div>
-      </div>
+        </div>
+      </details>
       <p class="imgnote" data-i18n="imgShared">The screenshot is shared across languages (text only is translated). Empty JA/KR fields fall back to EN.</p>
       <p class="note" style="margin-top:9px" data-i18n="appleRule">Apple rule: keep overlay text descriptive and factual. Superlatives, rankings, awards, or competitor comparisons risk rejection.</p>
     </div>
@@ -242,7 +252,21 @@
       <div class="slides" id="slideList"></div>
       <button class="btn addslide" id="addSlide" data-i18n="addSlide">+ Add slide</button>
     </div>
+  </aside>
 
+  <section class="stage">
+    <div class="preview-wrap">
+      <canvas id="preview" width="1284" height="2778"></canvas>
+      <div class="badge" id="badge"></div>
+      <div class="nav">
+        <button class="ghost" id="prev">‹</button>
+        <span class="badge" id="navlabel"></span>
+        <button class="ghost" id="next">›</button>
+      </div>
+    </div>
+  </section>
+
+  <aside class="rail rail-right">
     <div class="sec">
       <h3 data-i18n="background">Background</h3>
       <div class="preslab" data-i18n="presets">Presets</div>
@@ -335,18 +359,6 @@
       <p class="imgnote" data-i18n="projectNote">Saves your whole deck (text, screenshots, style) to a .json file you can re-open later.</p>
     </div>
   </aside>
-
-  <section class="stage">
-    <div class="preview-wrap">
-      <canvas id="preview" width="1284" height="2778"></canvas>
-      <div class="badge" id="badge"></div>
-      <div class="nav">
-        <button class="ghost" id="prev">‹</button>
-        <span class="badge" id="navlabel"></span>
-        <button class="ghost" id="next">›</button>
-      </div>
-    </div>
-  </section>
 </main>
 
 <div class="toast" id="toast"></div>
@@ -962,11 +974,11 @@ function seg(id, attr, fn){
 }
 const MORE_DEVS=["iphone67","androidtab","mac","feature"];
 function paintDevice(){ const v=state.device;
-  document.querySelectorAll("[data-dev]").forEach(b=>b.classList.toggle("on",b.dataset.dev===v));
+  document.querySelectorAll("button[data-dev]").forEach(b=>b.classList.toggle("on",b.dataset.dev===v));
   $("#moreDev").classList.toggle("moreactive",MORE_DEVS.includes(v));
   $("#moreSummary").innerHTML=(MORE_DEVS.includes(v)?DEVICES[v].label:"More formats")+' <span class="cv">▾</span>'; }
 function setDevice(v){ state.device=v; paintDevice(); $("#moreDev").open=false; renderPreview(); }
-document.querySelectorAll("[data-dev]").forEach(b=>b.addEventListener("click",()=>setDevice(b.dataset.dev)));
+document.querySelectorAll("button[data-dev]").forEach(b=>b.addEventListener("click",()=>setDevice(b.dataset.dev)));
 document.addEventListener("click",e=>{ document.querySelectorAll("details[open].moredev,details[open].expmenu").forEach(d=>{ if(!d.contains(e.target)) d.open=false; }); });
 seg("fmtSeg","fmt",v=>{state.format=v;renderPreview();});
 seg("localeSeg","loc",v=>{state.locale=v;applyI18n();syncEditor();renderSlides();renderPreview();});
