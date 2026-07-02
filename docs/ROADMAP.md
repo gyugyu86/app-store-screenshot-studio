@@ -24,12 +24,12 @@ Most paid/SaaS tools lose users to bloat and friction (long onboarding, 45-minut
 - **Google Play (Android phone)** — 1080×1920 added as a third device, reusing the whole pipeline (layout, no-alpha PNG, EN/JA/KR, ZIP `{locale}/android_NN.png`, presets, frame). Widens the tool to Android indie devs.
 - **Compose options** — frame **colour** (graphite/black/silver/white); background can be an **uploaded image** (cover); a **logo/icon** overlays above the title (size slider); title & subtitle take **independent Latin fonts**. All in `state.style` (save/load-safe).
 - **More export sizes** — **iPhone 6.7″** (1290×2796), **Android tablet** (1600×2560), **Mac** (2880×1800, landscape). Device UI is now generated from `DEVS = Object.keys(DEVICES)`, so adding a device is a one-line entry.
-- **More output languages** — **ES / FR / DE / PT** (Latin, no bundled fonts); auto-included in export when authored; the new tabs' UI falls back to English.
+- **Three-panel UI redesign** — content (left) / large preview (centre) / style (right); one-row header with a "More formats" dropdown for non-phone sizes and an "Export scope" popover; screenshot drops group mobile-inline + more-collapsed. *(ES/FR/DE/PT output languages were added then removed — too much clutter; back to EN/JA/KR, revisit on demand.)*
 - **Google Play feature graphic** — **1024×500** centred banner (title / subtitle / optional logo, no screenshot); exports on text as `{locale}/feature_NN.png`; include box defaults off.
 
 ## Next up — candidates (promote on demand)
 
-The v2 shortlist (batch ZIP, per-device/-language export, instant start, save/load, device frame) is **shipped**. Next candidates live in **Later (v3)** below — pull one up when users ask. Highest-leverage for reach: **Google Play export** (doubles the audience to Android indie devs) and **more Latin-script output locales** (ES/FR/DE/PT need no extra fonts).
+The v2 shortlist (batch ZIP, per-device/-language export, instant start, save/load, device frame) is **shipped**. Next candidates live in **Later (v3)** below — pull one up when users ask. Google Play export is shipped. (ES/FR/DE/PT output locales were tried and reverted for simplicity — revisit only on real demand.)
 
 ## Decisions
 
@@ -45,7 +45,7 @@ The v2 shortlist (batch ZIP, per-device/-language export, instant start, save/lo
 - Google Play: **all shipped** ✓ — Android phone 1080×1920, Android tablet 1600×2560, feature graphic 1024×500.  
 - Mac App Store: **2880×1800 shipped** ✓ (1280×800 / 1440×900 / 2560×1600 on request).  
 - iPhone **6.7″ 1290×2796 shipped** ✓ (added as a device).  
-- Logo/icon overlay **shipped** ✓; per-text **fonts shipped** ✓ (size/colour were already per-element). Remaining v3: full UI translation for ES/FR/DE/PT (currently English fallback); Chinese output (needs Noto SC/TC).
+- Logo/icon overlay **shipped** ✓; per-text **fonts shipped** ✓ (size/colour were already per-element). Remaining v3: Chinese output (needs Noto SC/TC). ES/FR/DE/PT were trialled and reverted.
 
 ## Do NOT build (bloat guardrails)
 

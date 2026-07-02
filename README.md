@@ -28,7 +28,8 @@ No accounts. No cloud. No tracking. Everything runs locally in the browser.
   screenshots needed yet), and one-click style **Presets** give a polished look fast.
 - **Save & resume** — "Save" exports your whole deck (text, screenshots, style) to a JSON file;
   "Load" re-opens it later to keep working or share it.
-- **7 output languages** — EN / JA / KR plus ES / FR / DE / PT, exported per language.
+- **Clean 3-panel workspace** — content on the left, a large live preview in the middle, style on the
+  right; a one-row header with a "More formats" menu for the non-phone sizes.
 - **Style options** — gradient / solid / **image** backgrounds, a **logo overlay**, **frame colours**,
   and **independent title/subtitle fonts**. Plus a Google Play **feature graphic** (1024×500) banner.
 - **Batch ZIP export** — "Export all" bundles every slide × device × language into a single
