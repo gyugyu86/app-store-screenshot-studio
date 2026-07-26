@@ -3,6 +3,11 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<!-- Enforces the local-first promise in the browser itself: no network egress of any kind.
+     img-src excludes http(s) on purpose, so a shared project file can never beacon out.
+     'unsafe-inline' is required because the app ships as one inline script + style block. -->
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; img-src 'self' data: blob:; font-src 'self'; style-src 'self' 'unsafe-inline'; script-src 'self' 'unsafe-inline'; connect-src 'none'; base-uri 'none'; form-action 'none'">
+<meta name="referrer" content="no-referrer">
 <title>Shotsmith — App Store Screenshot Studio</title>
 <style>
   /* bundled CJK fonts (variable, SIL OFL) — see /fonts/OFL.txt */
@@ -831,7 +836,7 @@ function renderSlides(){
   $("#addSlide").disabled = state.slides.length>=10;
   syncLangSel();
 }
-function escapeHtml(s){return s.replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));}
+function escapeHtml(s){return String(s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));}
 
 /* ---------- editor sync ---------- */
 function syncEditor(){
@@ -970,22 +975,56 @@ function syncControls(){                                  // push full state.sty
   sl("logoSize","logoSizeV",Math.round(s.logoSize*100),v=>v+"%"); logoUI();
   $("#rowFrameW").style.display=s.frame?"flex":"none"; $("#rowFrameC").style.display=s.frame?"flex":"none"; renderFrameColors();
 }
+/* ---------- project-file validation ----------
+   A .json project is meant to be shared, so treat it as untrusted input: every value is
+   rebuilt from a known key onto the existing state (never Object.assign'd, which would let
+   a "__proto__" key from JSON.parse retarget the prototype). Images must be inline data:
+   URLs — an http(s) src would silently beacon the opener's IP/UA and break "no tracking". */
+const IMG_DATA_RE=/^data:image\/(png|jpe?g|gif|webp|avif|svg\+xml);base64,[A-Za-z0-9+/=\s]+$/i;
+function safeImgSrc(v){ return (typeof v==="string" && IMG_DATA_RE.test(v)) ? v : null; }
+function safeStr(v,max){ return typeof v==="string" ? v.slice(0,max) : ""; }
+function safeHex(v,dflt){ return (typeof v==="string" && /^#[0-9a-f]{6}$/i.test(v)) ? v : dflt; }
+function safeNum(v,min,max,dflt){ return (typeof v==="number" && Number.isFinite(v)) ? Math.min(max,Math.max(min,v)) : dflt; }
+function safeBool(v,dflt){ return typeof v==="boolean" ? v : dflt; }
+function safeFont(v,dflt){ return (typeof v==="string" && v.length<=200 && !/[<>;{}]/.test(v)) ? v : dflt; }
+function safePick(v,list,dflt){ return list.includes(v) ? v : dflt; }
+function sanitizeStyle(r){                     // key-by-key onto state.style; unknown keys are dropped
+  if(!r || typeof r!=="object") return;
+  const s=state.style;
+  s.bgType=safePick(r.bgType,["gradient","solid","image"],s.bgType);
+  s.bg1=safeHex(r.bg1,s.bg1); s.bg2=safeHex(r.bg2,s.bg2); s.bgSolid=safeHex(r.bgSolid,s.bgSolid);
+  s.titleColor=safeHex(r.titleColor,s.titleColor); s.subColor=safeHex(r.subColor,s.subColor);
+  s.frameColor=safeHex(r.frameColor,s.frameColor);
+  s.bgImg=safeImgSrc(r.bgImg); s.logo=safeImgSrc(r.logo);
+  s.logoSize=safeNum(r.logoSize,0.02,0.6,s.logoSize);
+  s.fontFamily=safeFont(r.fontFamily,s.fontFamily); s.subFont=safeFont(r.subFont,s.subFont);
+  s.titleSize=safeNum(r.titleSize,0.01,0.3,s.titleSize); s.subSize=safeNum(r.subSize,0.01,0.3,s.subSize);
+  s.titleW=safePick(r.titleW,[400,500,700,900],s.titleW); s.subW=safePick(r.subW,[400,500,700,900],s.subW);
+  s.textZone=safeNum(r.textZone,0.05,0.9,s.textZone);
+  s.corner=safeNum(r.corner,0,0.5,s.corner); s.trimTop=safeNum(r.trimTop,0,0.5,s.trimTop);
+  s.frameW=safeNum(r.frameW,0,0.2,s.frameW);
+  s.shadow=safeBool(r.shadow,s.shadow); s.fill=safeBool(r.fill,s.fill); s.frame=safeBool(r.frame,s.frame);
+}
 function loadProject(file){
   if(!file) return;
   const r=new FileReader();
   r.onload=()=>{
     let d; try{ d=JSON.parse(r.result); }catch(e){ return toast(t("projectError")); }
-    if(!d || !Array.isArray(d.slides) || !d.slides.length) return toast(t("projectError"));
-    if(d.style) Object.assign(state.style, d.style);
-    if(d.locSel) state.locSel=d.locSel;
-    if(d.device==="iphone"||d.device==="ipad") state.device=d.device;
+    if(!d || typeof d!=="object" || !Array.isArray(d.slides) || !d.slides.length) return toast(t("projectError"));
+    sanitizeStyle(d.style);
+    if(d.locSel && typeof d.locSel==="object")
+      LOCALES.forEach(L=>{ state.locSel[L] = typeof d.locSel[L]==="boolean" ? d.locSel[L] : null; });
+    if(DEVS.includes(d.device)) state.device=d.device;      // every device class, not just iPhone/iPad
     if(d.format==="png"||d.format==="jpeg") state.format=d.format;
     if(LOCALES.includes(d.locale)) state.locale=d.locale;
-    state.slides=d.slides.map(sd=>{
+    state.slides=d.slides.slice(0,10).map(sd=>{             // same 1–10 cap the editor enforces
       const s=newSlide();
-      LOCALES.forEach(L=>{ const tt=sd.loc&&sd.loc[L]; if(tt) s.loc[L]={title:tt.title||"", subtitle:tt.subtitle||""}; });
-      DEVS.forEach(dev=>{ const src=sd.img&&sd.img[dev];
-        if(src){ const im=new Image(); im.onload=()=>{ s.img[dev]=im; syncEditor(); renderSlides(); renderPreview(); }; im.src=src; } });
+      if(sd && typeof sd==="object"){
+        LOCALES.forEach(L=>{ const tt=sd.loc&&sd.loc[L];
+          if(tt && typeof tt==="object") s.loc[L]={title:safeStr(tt.title,500), subtitle:safeStr(tt.subtitle,500)}; });
+        DEVS.forEach(dev=>{ const src=safeImgSrc(sd.img&&sd.img[dev]);
+          if(src){ const im=new Image(); im.onload=()=>{ s.img[dev]=im; syncEditor(); renderSlides(); renderPreview(); }; im.src=src; } });
+      }
       return s;
     });
     state.current=Math.min(Math.max(0, d.current|0), state.slides.length-1);
